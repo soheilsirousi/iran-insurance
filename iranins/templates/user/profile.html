@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پروفایل کاربر</title>
+    <link rel="stylesheet" href="{% static "profile/css/styles.css" %}">
+</head>
+<body>
+    <div class="profile-container">
+        <header>
+            <div class="user-info">
+                <span id="username">{{ request.user.first_name }} عزیز، خوش آمدید.</span>
+            </div>
+            <div class="logo">
+                <img src="{% static "profile/images/logo.png" %}" alt="Profile Image" id="profile-image">
+            </div>
+        </header>
+
+        <div class="content">
+            <aside class="sidebar">
+                <ul>
+                    <li><a href="#dashboard">پیشخوان</a></li>
+                    <li><a href="#">مشاهده و ویرایش پروفایل</a></li>
+                    <li><a href="#">تنظیمات</a></li>
+                    <li><a href="#">خروج</a></li>
+                </ul>
+            </aside>
+            <main class="main-content">
+                <section id="dashboard">
+                    <h2>پیشخوان</h2>
+                    <div class="dashboard-stats">
+                        <div class="stat-box">
+                            <h3>درآمد امروز</h3>
+                            <p id="today-income">{{ total_amount }} تومان</p>
+                        </div>
+                        <div class="stat-box">
+                            <h3>تعداد تراکنش‌ها</h3>
+                            <p id="transaction-count">{{ count }}</p>
+                        </div>
+                    </div>
+                <h3 style="margin-top: 50px">آخرین اقساط</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>نام و نام خانوادگی</th>
+                                <th>دارایی</th>
+                                <th>شماره بیمه</th>
+                                <th>مبلغ</th>
+                                <th>شیوه پرداخت</th>
+                            </tr>
+                        </thead>
+                        {% if transactions %}
+                        {% for transaction in transactions %}
+                            <tbody id="installments-list">
+                                <tr>
+                                    <td>{{ transaction.installment.insurance.insured.owner.get_full_name }}</td>
+                                    <td>{{ transaction.installment.insurance.insured.name }}</td>
+                                    <td>{{ transaction.installment.insurance.insurance_number }}</td>
+                                    <td>{{ transaction.amount }} تومان</td>
+                                    <td>{{ transaction.get_payment_type_display }}</td>
+                                </tr>
+                            </tbody>
+                        {% endfor %}
+                    {% else %}
+                        <tbody id="installments-list">
+                            <tr><td colspan="3">داده‌ای موجود نیست</td></tr>
+                        </tbody>
+                    {% endif %}
+                    </table>
+                </section>
+
+            </main>
+        </div>
+    </div>
+</body>
+</html>

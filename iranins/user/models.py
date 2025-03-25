@@ -7,7 +7,7 @@ from user.managers import CustomUserManager
 
 class CustomUser(AbstractUser):
     phone = models.CharField(max_length=11, unique=True, verbose_name=_('phone'))
-    national_id = models.CharField(max_length=10, unique=True, verbose_name=_('national id'))
+    national_id = models.CharField(max_length=10, unique=True, verbose_name=_('national id'), null=True, blank=True)
 
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = ('username', )

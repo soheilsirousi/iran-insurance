@@ -24,8 +24,8 @@ class Transaction(models.Model):
     CARD = 2
 
     choices = (
-        (POS, _('POS')),
-        (CARD, _('Card')),
+        (POS, _('کارتخوان')),
+        (CARD, _('کارت به کارت')),
     )
 
     invoice_number = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name=_('invoice number'))

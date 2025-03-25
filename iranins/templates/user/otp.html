@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود / ثبت‌نام</title>
+    <link rel="stylesheet" href="{% static "login/css/styles.css" %}">
+</head>
+<body>
+    <div class="container">
+        <h2>ورود / ثبت‌نام</h2>
+        <form action="/user/verify-otp/" id="loginForm" method="post">
+            {% csrf_token %}
+            <input type="text" name="phone" id="phone" value="{{ phone }}" maxlength="11" readonly>
+            <input type="text" name="otp" id="phone" placeholder="کد ورود" maxlength="4" required>
+            <button type="submit" id="sendCode">تایید</button>
+        </form>
+    </div>
+    <script src="{% static "login/js/script.js" %}"></script>
+</body>
+</html>
