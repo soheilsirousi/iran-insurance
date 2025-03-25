@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres
+    container_name: iranins_postgres
+    environment:
+       POSTGRES_USER: postgres
+       POSTGRES_PASSWORD: 123456
+       POSTGRES_DB : iranins
+       PG_DATA: /data/postgres/iranins
+    volumes:
+      - postgres:/data/postgres/iranins
+    ports:
+      - "5434:5432"
+    networks:
+      - iranins_network
+    restart: unless-stopped
+
+  redis:
+    image: redis
+    container_name: iranins_redis
+    command: ["redis-server", "/etc/redis/redis.conf"]
+    volumes:
+      - ./redis/redis.conf:/etc/redis/redis.conf
+      - redis:/etc/redis.conf
+      - redis:/data
+    ports:
+      - "6377:6379"
+    networks:
+      - iranins_network
+    restart: unless-stopped
+
+volumes:
+  postgres:
+  pgadmin:
+  redis:
+  logs:
+
+networks:
+  iranins_network:
+   driver: bridge
