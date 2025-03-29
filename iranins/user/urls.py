@@ -12,7 +12,10 @@ urlpatterns = [
     path('profile/users/', ProfileUsers.as_view(), name='profile-users'),
     path('profile/users/<int:pk>/delete/', ProfileUserDelete.as_view(), name='profile-user-delete'),
     path('profile/users/<int:pk>/edit/', ProfileUserRetreive.as_view(), name='profile-user-retrieve'),
-    path('profile/users/<int:pk>/insureds/', UserInsureds.as_view(), name='user-indureds'),
+
+    path('profile/users/<int:user_pk>/insureds/<int:insured_pk>/delete/', UserInsuredDelete.as_view(), name='user-indured-delete'),
+    path('profile/users/<int:pk>/insureds/', UserInsureds.as_view(), name='user-insureds'),
+
     path('profile/', ProfileDashboard.as_view(), name='profile-dashboard'),
 
     path('logout/', ProfileLogout.as_view(), name='profile-logout'),

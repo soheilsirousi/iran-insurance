@@ -17,7 +17,7 @@ class Category(models.Model):
 
 
 class Insured(models.Model):
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, verbose_name=_('owner'), related_name='insureds')
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_('owner'), related_name='insureds')
     category = models.ForeignKey(Category, on_delete=models.RESTRICT, verbose_name=_('category'), related_name='insureds')
     name = models.CharField(max_length=100, verbose_name=_('name'), null=False, blank=False)
     joined_at = models.DateTimeField(auto_now_add=True, verbose_name=_('joined at'))
@@ -34,8 +34,8 @@ class Insured(models.Model):
 
 class Insurance(models.Model):
     insurance_number = models.PositiveBigIntegerField(verbose_name=_('insurance number'), null=True, blank=True)
-    insurer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.RESTRICT, verbose_name=_('insurer'), related_name='insurances')
-    insured = models.ForeignKey(Insured, on_delete=models.RESTRICT, verbose_name=_('insured'), related_name='insurances')
+    insurer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_('insurer'), related_name='insurances')
+    insured = models.ForeignKey(Insured, on_delete=models.CASCADE, verbose_name=_('insured'), related_name='insurances')
     start_at = models.DateTimeField(verbose_name=_('start at'), null=False, blank=False)
     end_at = models.DateTimeField(verbose_name=_('end at'), null=False, blank=False)
     amount = models.PositiveBigIntegerField(verbose_name=_('amount'), null=False, blank=False)

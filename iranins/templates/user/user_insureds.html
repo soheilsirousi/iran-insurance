@@ -2,6 +2,29 @@
 {% load static %}
 
 {% block content %}
+
+    {% if messages %}
+{% for message in messages %}
+    <div class="error-container">
+    <div class="error-alert">
+        <button class="error-close">&times;</button>
+        <div class="error-content">
+            <div class="error-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+            </div>
+            <div class="error-message">
+                {{ message }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+    {% endif %}
+
     <div class="user-management-container">
         <h2>مدیریت دارایی‌های {{ user.get_full_name }}</h2>
 
@@ -39,7 +62,7 @@
                 <div class="asset-actions">
                     <button class="action-btn insurance-btn">بیمه‌ها</button>
                     <button class="action-btn edit-btn">ویرایش</button>
-                    <button class="action-btn delete-btn">حذف</button>
+                    <a href="{% url 'user-indured-delete' user.id insured.id %}"><button class="action-btn delete-btn">حذف</button></a>
                 </div>
             </div>
             {% endfor %}
@@ -51,7 +74,7 @@
         <div class="pagination-section">
             <div class="pagination">
                 {% if insureds.has_previous %}
-                    <a href="?page={{ insureds.previous_page_number  }}"><button class="prev-btn">قبلی</button></a>
+                    <a href="?page={{ insureds.previous_page_number }}"><button class="prev-btn">قبلی</button></a>
                 {% endif %}
                 {% if insureds.paginator.num_pages != 1 %}
                     <span>صفحه {{ insureds.number }} از {{ insureds.paginator.num_pages }}</span>
@@ -78,5 +101,16 @@
                 });
             });
         });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const errorClose = document.querySelector('.error-close');
+    if (errorClose) {
+        errorClose.addEventListener('click', function() {
+            this.closest('.error-alert').style.display = 'none';
+        });
+    }
+});
+
     </script>
 {% endblock %}
