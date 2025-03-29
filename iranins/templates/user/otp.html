@@ -4,12 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ورود / ثبت‌نام</title>
+    <title>ورود - بیمه ایران</title>
+    <link rel="icon" type="image/x-icon" href="{% static "profile/images/logo.png" %}">
     <link rel="stylesheet" href="{% static "login/css/styles.css" %}">
 </head>
 <body>
     <div class="container">
-        <h2>ورود / ثبت‌نام</h2>
+        <h2>ورود</h2>
         <form action="/user/verify-otp/" id="loginForm" method="post">
             {% csrf_token %}
             <input type="text" name="phone" id="phone" value="{{ phone }}" maxlength="11" readonly>

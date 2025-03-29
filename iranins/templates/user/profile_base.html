@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدیریت - بیمه ایران</title>
+    <link rel="icon" type="image/x-icon" href="{% static "profile/images/logo.png" %}">
+    <link rel="stylesheet" href="{% static "profile/css/styles.css" %}">
+</head>
+<body>
+    <div class="profile-container">
+        <header>
+            <div class="user-info">
+                <span id="username">{{ request.user.first_name }} عزیز، خوش آمدید.</span>
+            </div>
+            <div class="logo">
+                <img src="{% static "profile/images/logo.png" %}" alt="Profile Image" id="profile-image">
+            </div>
+        </header>
+
+        <div class="content">
+            <aside class="sidebar">
+                <ul>
+                    <li><a href="/user/profile/">پیشخوان</a></li>
+                    <li><a href="/user/profile/edit/">ویرایش پروفایل</a></li>
+                    <li><a href="/user/profile/users/">مدیریت مشتریان</a></li>
+                    <li><a href="/user/logout/">خروج</a></li>
+                </ul>
+            </aside>
+            <main class="main-content">
+                {% block content %}
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+</body>
+</html>

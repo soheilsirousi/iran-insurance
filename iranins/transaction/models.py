@@ -1,3 +1,4 @@
+import datetime
 import uuid
 
 from django.db import models
@@ -42,3 +43,11 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f'{self.invoice_number}'
+
+    @classmethod
+    def get_today_transactions(cls):
+        now = datetime.date.today()
+        transactions = Transaction.objects.filter(created_at__gte=now, is_paid=True)
+
+        return transactions
+

@@ -1,0 +1,101 @@
+{% extends "user/profile_base.html" %}
+{% load static %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+    <div class="error-container">
+    <div class="error-alert">
+        <button class="error-close">&times;</button>
+        <div class="error-content">
+            <div class="error-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+            </div>
+            <div class="error-message">
+                {{ message }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+    {% endif %}
+<div class="user-management-container">
+    <h2>مدیریت مشتریان</h2>
+
+    <div class="user-management-header">
+        <div class="search-and-add-section">
+            <form>
+                <div class="search-section">
+                    <input type="text" id="user-search" name="key" placeholder="نام، نام خانوادگی، شماره همراه، شماره ملی...">
+                    <button class="search-button" type="submit">جستجو</button>
+                </div>
+            </form>
+            <a href="/user/profile/users/add/"><button class="add-user-btn">+ افزودن کاربر جدید</button></a>
+        </div>
+    </div>
+
+    <table class="user-table">
+        <thead>
+            <tr>
+                <th>ردیف</th>
+                <th>نام</th>
+                <th>نام خانوادگی</th>
+                <th>شماره همراه</th>
+                <th>کد ملی</th>
+                <th>نقش</th>
+                <th>عملیات</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ user.first_name }}</td>
+                <td>{{ user.last_name }}</td>
+                <td>{{ user.phone }}</td>
+                <td>{{ user.national_id }}</td>
+                <td>{{ user.get_role_display }}</td>
+                <td>
+                    <div class="action-buttons">
+                        <a href="{% url 'user-indureds' user.id %}"><button class="insurance-btn">دارایی ها</button></a>
+                        <a href="{% url 'profile-user-retrieve' user.id %}"><button class="edit-btn">ویرایش</button></a>
+                        <a href="{% url 'profile-user-delete' user.id %}"><button class="delete-btn">حذف</button></a>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination-section">
+        <div class="pagination">
+            {% if users.has_previous %}
+                <a href="?page={{ users.previous_page_number  }}"><button class="prev-btn">قبلی</button></a>
+            {% endif %}
+            {% if users.paginator.num_pages != 1 %}
+                <span>صفحه {{ users.number }} از {{ users.paginator.num_pages }}</span>
+            {% endif %}
+            {% if users.has_next %}
+                <a href="?page={{ users.next_page_number }}"><button class="next-btn">بعدی</button></a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const errorClose = document.querySelector('.error-close');
+    if (errorClose) {
+        errorClose.addEventListener('click', function() {
+            this.closest('.error-alert').style.display = 'none';
+        });
+    }
+});
+</script>
+
+{% endblock %}

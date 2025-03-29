@@ -1,0 +1,82 @@
+{% extends "user/profile_base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="user-management-container">
+        <h2>مدیریت دارایی‌های {{ user.get_full_name }}</h2>
+
+        <div class="user-management-header">
+            <div class="insured-search-and-add-section">
+                <form>
+                <div class="insured-search-section">
+                    <input type="text" id="user-insured-search" name="key" placeholder="نام دارایی، نوع...">
+                    <button class="insured-search-button" type="submit">جستجو</button>
+                </div>
+                    </form>
+                <button class="add-insured-btn">+ افزودن دارایی جدید</button>
+            </div>
+        </div>
+
+        <div class="assets-container">
+        {% if insureds %}
+            {% for insured in insureds %}
+            <div class="asset-box">
+                <div class="asset-info">
+                    <div class="asset-name">{{ insured.name }}</div>
+                    <div class="asset-details">
+                        <div class="asset-detail-item">
+                            <span class="asset-detail-label">نوع:</span>
+                            <span>{{ insured.category.name }}</span>
+                        </div>
+                        {% for attr in insured.attributes.all %}
+                        <div class="asset-detail-item">
+                            <span class="asset-detail-label">{{ attr.attribute }}</span>
+                            <span>{{ attr.value }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="asset-actions">
+                    <button class="action-btn insurance-btn">بیمه‌ها</button>
+                    <button class="action-btn edit-btn">ویرایش</button>
+                    <button class="action-btn delete-btn">حذف</button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <h3>موردی یافت نشد.</h3>
+        {% endif %}
+        </div>
+
+        <div class="pagination-section">
+            <div class="pagination">
+                {% if insureds.has_previous %}
+                    <a href="?page={{ insureds.previous_page_number  }}"><button class="prev-btn">قبلی</button></a>
+                {% endif %}
+                {% if insureds.paginator.num_pages != 1 %}
+                    <span>صفحه {{ insureds.number }} از {{ insureds.paginator.num_pages }}</span>
+                {% endif %}
+                {% if users.has_next %}
+                    <a href="?page={{ insureds.next_page_number  }}"><button class="next-btn">بعدی</button></a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // کد جاوااسکریپت برای نمایش افکت‌ها
+        document.addEventListener('DOMContentLoaded', function() {
+            // اضافه کردن افکت به باکس‌ها در هنگام هاور
+            const assetBoxes = document.querySelectorAll('.asset-box');
+            assetBoxes.forEach(box => {
+                box.addEventListener('mouseenter', function() {
+                    this.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.1)';
+                });
+                
+                box.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = 'none';
+                });
+            });
+        });
+    </script>
+{% endblock %}

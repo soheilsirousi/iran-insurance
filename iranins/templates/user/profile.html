@@ -1,33 +1,6 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="fa">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پروفایل کاربر</title>
-    <link rel="stylesheet" href="{% static "profile/css/styles.css" %}">
-</head>
-<body>
-    <div class="profile-container">
-        <header>
-            <div class="user-info">
-                <span id="username">{{ request.user.first_name }} عزیز، خوش آمدید.</span>
-            </div>
-            <div class="logo">
-                <img src="{% static "profile/images/logo.png" %}" alt="Profile Image" id="profile-image">
-            </div>
-        </header>
+{% extends "user/profile_base.html" %}
 
-        <div class="content">
-            <aside class="sidebar">
-                <ul>
-                    <li><a href="#dashboard">پیشخوان</a></li>
-                    <li><a href="#">مشاهده و ویرایش پروفایل</a></li>
-                    <li><a href="#">تنظیمات</a></li>
-                    <li><a href="#">خروج</a></li>
-                </ul>
-            </aside>
-            <main class="main-content">
+{% block content %}
                 <section id="dashboard">
                     <h2>پیشخوان</h2>
                     <div class="dashboard-stats">
@@ -41,6 +14,8 @@
                         </div>
                     </div>
                 <h3 style="margin-top: 50px">آخرین اقساط</h3>
+                    {% if transactions %}
+
                     <table>
                         <thead>
                             <tr>
@@ -51,7 +26,6 @@
                                 <th>شیوه پرداخت</th>
                             </tr>
                         </thead>
-                        {% if transactions %}
                         {% for transaction in transactions %}
                             <tbody id="installments-list">
                                 <tr>
@@ -64,15 +38,8 @@
                             </tbody>
                         {% endfor %}
                     {% else %}
-                        <tbody id="installments-list">
-                            <tr><td colspan="3">داده‌ای موجود نیست</td></tr>
-                        </tbody>
+                            <h4 style="text-align: center">داده‌ای موجود نیست</h4>
                     {% endif %}
                     </table>
                 </section>
-
-            </main>
-        </div>
-    </div>
-</body>
-</html>
+{% endblock %}

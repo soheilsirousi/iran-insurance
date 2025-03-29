@@ -4,18 +4,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ورود / ثبت‌نام</title>
+    <title>ورود - بیمه ایران</title>
+    <link rel="icon" type="image/x-icon" href="{% static "profile/images/logo.png" %}">
     <link rel="stylesheet" href="{% static "login/css/styles.css" %}">
 </head>
 <body>
     <div class="container">
-        <h2>ورود / ثبت‌نام</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+        <div class="error-container" id="errorContainer">
+            <div class="error-alert">
+                <div class="error-content">
+                    <div class="error-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <div class="error-message" id="errorMessage">{{ message }}</div>
+                </div>
+                <button class="error-close" onclick="closeError()">&times;</button>
+            </div>
+        </div>
+            {% endfor %}
+        {% endif %}
+
+        <h2>ورود</h2>
         <form action="/user/send-otp/" id="loginForm" method="post">
             {% csrf_token %}
             <input type="text" name="phone" id="phone" placeholder="شماره موبایل" maxlength="11" required>
             <button type="submit" id="sendCode">ارسال کد</button>
         </form>
     </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            const phoneInput = document.getElementById('phone');
+            const errorContainer = document.getElementById('errorContainer');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Validate phone number
+            const phoneRegex = /^09\d{9}$/;
+            if (!phoneRegex.test(phoneInput.value)) {
+                event.preventDefault(); // Prevent form submission
+                errorMessage.textContent = 'لطفاً شماره موبایل را به درستی وارد کنید';
+                errorContainer.style.display = 'block';
+                phoneInput.focus();
+                return false;
+            }
+        });
+
+        function closeError() {
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.style.display = 'none';
+        }
+
+        // Optional: Close error on input change
+        document.getElementById('phone').addEventListener('input', function() {
+            closeError();
+        });
+    </script>
+
     <script src="{% static "login/js/script.js" %}"></script>
+
 </body>
 </html>
