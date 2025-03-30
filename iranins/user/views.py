@@ -7,6 +7,9 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
+from unicodedata import category
+
+from insurance.models import Category, Insured, Attribute, InsuredAttributeValue
 from transaction.models import Transaction
 from user.models import CustomUser
 from user.utils.decorator import admin_only
@@ -107,8 +110,9 @@ class ProfileUsers(LoginRequiredMixin, View):
         if key is None:
             users = CustomUser.objects.all().order_by('date_joined')
         else:
-            users = CustomUser.objects.filter(Q(first_name__icontains=key) |  Q(last_name__icontains=key)
-                                              | Q(national_id__icontains=key) | Q(phone__icontains=key)).order_by('date_joined')
+            users = CustomUser.objects.filter(Q(first_name__icontains=key) | Q(last_name__icontains=key)
+                                              | Q(national_id__icontains=key) | Q(phone__icontains=key)).order_by(
+                'date_joined')
 
         paginator = Paginator(users, 40)
         page = request.GET.get('page')
@@ -125,7 +129,6 @@ class ProfileCreateUser(LoginRequiredMixin, View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
@@ -179,7 +182,7 @@ class ProfileUserDelete(LoginRequiredMixin, View):
         return redirect('profile-users')
 
 
-class UserInsureds(View):
+class UserInsureds(LoginRequiredMixin, View):
     template_name = 'user/user_insureds.html'
 
     @admin_only
@@ -189,20 +192,23 @@ class UserInsureds(View):
     def get(self, request, pk, *args, **kwargs):
         user = CustomUser.objects.get(pk=pk)
         key = request.GET.get('key')
+        categories = Category.objects.all()
 
         if key is None:
             insureds = user.insureds.all().order_by('joined_at')
         else:
-            insureds = user.insureds.filter(Q(name__icontains=key) | Q(category__name__icontains=key)).order_by('joined_at')
+            insureds = user.insureds.filter(Q(name__icontains=key) | Q(category__name__icontains=key)).order_by(
+                'joined_at')
 
         paginator = Paginator(insureds, 10)
         page = request.GET.get('page')
         insureds_page = paginator.get_page(page)
 
-        return render(request, self.template_name, context={'user': user, 'insureds': insureds_page})
+        return render(request, self.template_name,
+                      context={'user': user, 'insureds': insureds_page, 'categories': categories})
 
 
-class UserInsuredDelete(View):
+class UserInsuredDelete(LoginRequiredMixin, View):
 
     @admin_only
     def dispatch(self, request, *args, **kwargs):
@@ -211,7 +217,7 @@ class UserInsuredDelete(View):
     def get(self, request, user_pk, insured_pk, *args, **kwargs):
         if request.user.role == 2:
             messages.error(request, 'پشتیبان نمیتواند دارایی را حذف کند.')
-            return redirect('user-insureds', pk= user_pk)
+            return redirect('user-insureds', pk=user_pk)
 
         user = CustomUser.objects.get(pk=user_pk)
         insured = user.insureds.get(pk=insured_pk)
@@ -221,12 +227,81 @@ class UserInsuredDelete(View):
         return redirect('user-insureds', pk=user_pk)
 
 
+class UserInsuredAdd(LoginRequiredMixin, View):
+
+    @admin_only
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, pk, *args, **kwargs):
+        name = request.POST.get('name')
+        type = request.POST.get('type')
+        user = CustomUser.objects.get(pk=pk)
+        category = Category.objects.get(pk=int(type))
+        insured = Insured.objects.create(owner=user, name=name, category=category)
+
+        attrs = request.POST.items()
+        attribute = None
+        for title, name in attrs:
+            if title.startswith('property-title-'):
+                try:
+                    attribute = Attribute.objects.get(name=name)
+                except Attribute.DoesNotExist:
+                    attribute = Attribute.objects.create(name=name)
+
+            elif title.startswith('property-value-'):
+                InsuredAttributeValue.objects.create(attribute=attribute, value=name, insured=insured)
+
+        return redirect('user-insureds', pk=pk)
+
+
+class UserInsuredEdit(LoginRequiredMixin, View):
+    template_name = 'user/user_insured_edit.html'
+
+    @admin_only
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, user_pk, insured_pk, *args, **kwargs):
+        user = CustomUser.objects.get(pk=user_pk)
+        insured = user.insureds.get(pk=insured_pk)
+        categories = Category.objects.all()
+        return render(request, self.template_name, context={'user': user, 'insured': insured, 'categories': categories})
+
+    def post(self, request, user_pk, insured_pk, *args, **kwargs):
+        name = request.POST.get('name')
+        type = request.POST.get('type')
+        user = CustomUser.objects.get(pk=user_pk)
+        insured = Insured.objects.get(pk=int(insured_pk))
+
+        insured.name = name
+        insured.category = Category.objects.get(pk=int(type))
+        insured.save()
+
+        for obj in insured.attributes.all():
+            obj.delete()
+
+        attrs = request.POST.items()
+        attribute = None
+        for title, name in attrs:
+            if title.startswith('attribute_names'):
+                try:
+                    attribute = Attribute.objects.get(name=name)
+                except Attribute.DoesNotExist:
+                    attribute = Attribute.objects.create(name=name)
+
+            elif title.startswith('attribute_values'):
+                InsuredAttributeValue.objects.create(attribute=attribute, value=name, insured=insured)
+
+        return redirect('user-insureds', pk=user_pk)
+
+
 class ErrorPage(View):
     template_name = 'user/error.html'
 
     def get(self, request, *args, **kwargs):
-
         return render(request, self.template_name)
+
 
 class ProfileLogout(LoginRequiredMixin, View):
 

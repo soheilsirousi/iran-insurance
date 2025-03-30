@@ -4,25 +4,27 @@
 {% block content %}
 
     {% if messages %}
-{% for message in messages %}
-    <div class="error-container">
-    <div class="error-alert">
-        <button class="error-close">&times;</button>
-        <div class="error-content">
-            <div class="error-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
+        {% for message in messages %}
+            <div class="error-container">
+                <div class="error-alert">
+                    <button class="error-close">&times;</button>
+                    <div class="error-content">
+                        <div class="error-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                        <div class="error-message">
+                            {{ message }}
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="error-message">
-                {{ message }}
-            </div>
-        </div>
-    </div>
-</div>
-{% endfor %}
+        {% endfor %}
     {% endif %}
 
     <div class="user-management-container">
@@ -31,86 +33,151 @@
         <div class="user-management-header">
             <div class="insured-search-and-add-section">
                 <form>
-                <div class="insured-search-section">
-                    <input type="text" id="user-insured-search" name="key" placeholder="نام دارایی، نوع...">
-                    <button class="insured-search-button" type="submit">جستجو</button>
-                </div>
-                    </form>
+                    <div class="insured-search-section">
+                        <input type="text" id="user-insured-search" name="key" placeholder="نام دارایی، نوع...">
+                        <button class="insured-search-button" type="submit">جستجو</button>
+                    </div>
+                </form>
                 <button class="add-insured-btn">+ افزودن دارایی جدید</button>
             </div>
         </div>
 
         <div class="assets-container">
-        {% if insureds %}
-            {% for insured in insureds %}
-            <div class="asset-box">
-                <div class="asset-info">
-                    <div class="asset-name">{{ insured.name }}</div>
-                    <div class="asset-details">
-                        <div class="asset-detail-item">
-                            <span class="asset-detail-label">نوع:</span>
-                            <span>{{ insured.category.name }}</span>
+            {% if insureds %}
+                {% for insured in insureds %}
+                    <div class="asset-box">
+                        <div class="asset-info">
+                            <div class="asset-name">{{ insured.name }}</div>
+                            <div class="asset-details">
+                                <div class="asset-detail-item">
+                                    <span class="asset-detail-label">نوع:</span>
+                                    <span>{{ insured.category.name }}</span>
+                                </div>
+                                {% for attr in insured.attributes.all %}
+                                    <div class="asset-detail-item">
+                                        <span class="asset-detail-label">{{ attr.attribute }}: </span>
+                                        <span>{{ attr.value }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
                         </div>
-                        {% for attr in insured.attributes.all %}
-                        <div class="asset-detail-item">
-                            <span class="asset-detail-label">{{ attr.attribute }}</span>
-                            <span>{{ attr.value }}</span>
+                        <div class="asset-actions">
+                            <button class="action-btn insurance-btn">بیمه‌ها</button>
+                            <a href="{% url 'user-insured-edit' user.id insured.id %}"><button class="action-btn edit-btn">ویرایش</button></a>
+                            <a href="{% url 'user-insured-delete' user.id insured.id %}">
+                                <button class="action-btn delete-btn">حذف</button>
+                            </a>
                         </div>
-                        {% endfor %}
                     </div>
-                </div>
-                <div class="asset-actions">
-                    <button class="action-btn insurance-btn">بیمه‌ها</button>
-                    <button class="action-btn edit-btn">ویرایش</button>
-                    <a href="{% url 'user-indured-delete' user.id insured.id %}"><button class="action-btn delete-btn">حذف</button></a>
-                </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <h3>موردی یافت نشد.</h3>
-        {% endif %}
+                {% endfor %}
+            {% else %}
+                <h3>موردی یافت نشد.</h3>
+            {% endif %}
         </div>
 
         <div class="pagination-section">
             <div class="pagination">
                 {% if insureds.has_previous %}
-                    <a href="?page={{ insureds.previous_page_number }}"><button class="prev-btn">قبلی</button></a>
+                    <a href="?page={{ insureds.previous_page_number }}">
+                        <button class="prev-btn">قبلی</button>
+                    </a>
                 {% endif %}
                 {% if insureds.paginator.num_pages != 1 %}
                     <span>صفحه {{ insureds.number }} از {{ insureds.paginator.num_pages }}</span>
                 {% endif %}
                 {% if users.has_next %}
-                    <a href="?page={{ insureds.next_page_number  }}"><button class="next-btn">بعدی</button></a>
+                    <a href="?page={{ insureds.next_page_number }}">
+                        <button class="next-btn">بعدی</button>
+                    </a>
                 {% endif %}
             </div>
         </div>
     </div>
 
-    <script>
-        // کد جاوااسکریپت برای نمایش افکت‌ها
-        document.addEventListener('DOMContentLoaded', function() {
-            // اضافه کردن افکت به باکس‌ها در هنگام هاور
-            const assetBoxes = document.querySelectorAll('.asset-box');
-            assetBoxes.forEach(box => {
-                box.addEventListener('mouseenter', function() {
-                    this.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.1)';
-                });
-                
-                box.addEventListener('mouseleave', function() {
-                    this.style.boxShadow = 'none';
-                });
-            });
-        });
+    <div class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">افزودن دارایی جدید</div>
+                <button class="close-btn">&times;</button>
+            </div>
 
+            <form class="form-container" method="post" action="{% url 'user-insured-add' user.id %}">
+                {% csrf_token %}
+                <!-- بخش اطلاعات دارایی -->
+                <div class="form-section">
+                    <div class="section-title">اطلاعات دارایی</div>
 
-document.addEventListener('DOMContentLoaded', function() {
-    const errorClose = document.querySelector('.error-close');
-    if (errorClose) {
-        errorClose.addEventListener('click', function() {
-            this.closest('.error-alert').style.display = 'none';
-        });
-    }
-});
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="asset-name">نام دارایی</label>
+                            <input type="text" id="asset-name" class="form-input" name="name"
+                                   placeholder="مثال: پژو ۲۰۶" required>
+                        </div>
 
-    </script>
+                        <div class="form-group">
+                            <label class="form-label" for="asset-type">نوع دارایی</label>
+                            <select id="asset-type" class="form-select" name="type" required>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- بخش اطلاعات مالک -->
+                <div class="form-section">
+                    <div class="section-title">اطلاعات مالک</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="owner-name">نام و نام خانوادگی مالک</label>
+                            <input type="text" id="owner-name" class="form-input" name="owner_name"
+                                   value="{{ user.get_full_name }}" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="owner-national-id">کد ملی مالک</label>
+                            <input type="text" id="owner-national-id" class="form-input" name="owner_national_id"
+                                   value="{{ user.national_id }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="owner-phone">شماره تماس مالک</label>
+                            <input type="tel" id="owner-phone" class="form-input" name="owner_phone"
+                                   value="{{ user.phone }}" readonly>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- بخش اطلاعات اختصاصی دارایی -->
+                <div class="form-section">
+                    <div class="section-title">اطلاعات اختصاصی دارایی</div>
+
+                    <!-- بخش ویژگی‌های اضافی -->
+                    <div class="section-subtitle">ویژگی‌های تخصصی</div>
+                    <div id="custom-properties-container">
+                        <!-- اینجا ویژگی‌های اضافی اضافه خواهند شد -->
+                    </div>
+
+                    <button type="button" id="add-property-btn" class="add-property-btn">
+                        <span>+</span>
+                        افزودن ویژگی جدید
+                    </button>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn">انصراف</button>
+                    <button type="submit" class="submit-btn">ثبت دارایی</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="{% static "profile/js/user_insureds.js" %}"></script>
+
 {% endblock %}
