@@ -1,0 +1,523 @@
+/* استایل‌های عمومی */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Vazir', sans-serif;
+    direction: rtl;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f7fa;
+}
+
+form {
+    width: 100%;
+}
+
+/* داشبورد بیمه */
+.insurance-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.insurance-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.dashboard-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #2d3748;
+    margin-top: 25px;
+    margin-right: 10px;
+}
+
+.btn-add-insurance {
+    background-color: #4299e1;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 18px;
+    font-family: 'Vazir', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    width: 15%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-add-insurance:hover {
+    background-color: #3182ce;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* کارت‌های بیمه */
+.insurance-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+    align-items: start;
+}
+
+.insurance-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.insurance-card:hover {
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+}
+
+.insurance-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #edf2f7;
+    background-color: #f8fafc;
+}
+
+.insurance-type {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2d3748;
+}
+
+.insurance-status {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.insurance-status.active {
+    background-color: #c6f6d5;
+    color: #22543d;
+}
+
+.insurance-status.expired {
+    background-color: #fed7d7;
+    color: #822727;
+}
+
+.insurance-card-body {
+    padding: 20px;
+}
+
+.insurance-info-row {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.info-item {
+    flex: 1;
+    min-width: 0;
+}
+
+.info-label {
+    font-size: 13px;
+    color: #718096;
+    margin-bottom: 5px;
+}
+
+.info-value {
+    font-size: 14px;
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.insurance-progress {
+    margin-top: 15px;
+}
+
+.progress-bar {
+    height: 8px;
+    background-color: #edf2f7;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #48bb78;
+    transition: width 0.3s ease;
+}
+
+.progress-fill.warning {
+    background-color: #ed8936;
+}
+
+.progress-fill.expired {
+    background-color: #e53e3e;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #4a5568;
+}
+
+.days-remaining.warning {
+    color: #c05621;
+    font-weight: 600;
+}
+
+.days-remaining.expired {
+    color: #c53030;
+    font-weight: 600;
+}
+
+.insurance-card-footer {
+    display: flex;
+    padding: 15px 20px;
+    border-top: 1px solid #edf2f7;
+    background-color: #f8fafc;
+    gap: 10px;
+}
+
+.insurance-card-footer button {
+    font-family: 'Vazir', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.btn-installments {
+    background-color: #4a5568;
+    color: white;
+    flex: 1;
+}
+
+.btn-installments:hover {
+    background-color: #2d3748;
+}
+
+.btn-edit {
+    background-color: #4299e1;
+    color: white;
+    flex: 1;
+}
+
+.btn-edit:hover {
+    background-color: #3182ce;
+}
+
+.btn-delete {
+    background-color: #f56565;
+    color: white;
+    flex: 1;
+}
+
+.btn-delete:hover {
+    background-color: #e53e3e;
+}
+
+.btn-renew {
+    background-color: #48bb78;
+    color: white;
+    flex: 1;
+}
+
+.btn-renew:hover {
+    background-color: #38a169;
+}
+
+/* پنل اقساط */
+.installments-panel {
+    padding: 20px;
+    border-top: 1px solid #edf2f7;
+    background-color: #f9fafb;
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.installments-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 14px;
+}
+
+.installment-badge {
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+.installment-badge.paid {
+    background-color: #c6f6d5;
+    color: #22543d;
+}
+
+.installment-badge.unpaid {
+    background-color: #fed7d7;
+    color: #822727;
+}
+
+.installment-items {
+    display: grid;
+    gap: 10px;
+}
+
+.installment-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: white;
+    border: 1px solid #edf2f7;
+}
+
+.installment-item.paid {
+    border-right: 3px solid #48bb78;
+}
+
+.installment-number {
+    font-weight: 600;
+    color: #2d3748;
+    width: 80px;
+}
+
+.installment-amount {
+    flex: 2;
+    font-weight: 600;
+    color: #1a202c;
+}
+
+.installment-date {
+    flex: 1;
+    color: #718096;
+}
+
+.installment-badge.small {
+    padding: 3px 8px;
+    font-size: 11px;
+    line-height: 1;
+}
+
+/* مودال */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.insurance-modal {
+    background-color: white;
+    border-radius: 10px;
+    width: 40%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2d3748;
+}
+
+.modal-close {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #a0aec0;
+    background-color: #f7fafc;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.modal-close:hover {
+    background-color: #fed7d7;
+    color: #e53e3e;
+}
+
+.modal-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* فرم */
+.form-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #edf2f7;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-section-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2d3748;
+    margin-bottom: 15px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    flex: 1;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #4a5568;
+    font-weight: 600;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 5px;
+    font-family: 'Vazir', sans-serif;
+    font-size: 14px;
+    color: #2d3748;
+    transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+select.form-control {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='%234a5568' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+    background-repeat: no-repeat;
+    background-position: left 10px center;
+    padding-left: 30px;
+}
+
+.installment-options {
+    display: none;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between; /* تغییر از flex-end به space-between */
+    gap: 10px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.btn-cancel, .btn-submit {
+    padding: 12px 30px;
+    width: 48%; /* تغییر از min-width به width */
+    text-align: center;
+}
+
+.btn-cancel {
+    padding: 12px 30px;
+    background-color: #e2e8f0;
+    color: #4a5568;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Vazir', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    min-width: 120px;
+}
+
+.btn-cancel:hover {
+    background-color: #cbd5e0;
+}
+
+.btn-submit {
+    padding: 12px 30px;
+    background-color: #48bb78;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Vazir', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    min-width: 120px;
+}
+
+.btn-submit:hover {
+    background-color: #38a169;
+}
+
+/* پاسخگویی */
+@media (max-width: 768px) {
+    .insurance-modal {
+        width: 90%;
+    }
+}

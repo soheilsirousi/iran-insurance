@@ -14,13 +14,13 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Insured)
 class InsuredAdmin(admin.ModelAdmin):
-    list_display = ('owner', 'category', 'name', 'is_insured')
+    list_display = ('owner', 'category', 'name')
     inlines = (InsuredAttributeValueInline, )
 
 
 @admin.register(Insurance)
 class InsuranceAdmin(admin.ModelAdmin):
-    list_display = ('insurance_number', 'insurer', 'insured', 'start_at', 'end_at', 'amount')
+    list_display = ('insurance_number', 'insurer', 'insured', 'insurance_type', 'start_at', 'end_at', 'amount')
 
 
 @admin.register(Attribute)

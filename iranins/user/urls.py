@@ -18,6 +18,9 @@ urlpatterns = [
     path('profile/users/<int:user_pk>/insureds/<int:insured_pk>/edit/', UserInsuredEdit.as_view(), name='user-insured-edit'),
     path('profile/users/<int:pk>/insureds/', UserInsureds.as_view(), name='user-insureds'),
 
+    path('profile/users/<int:user_pk>/insureds/<int:insured_pk>/insurances/add', InsuredInsuranceAdd.as_view(), name='insured-insurance-add'),
+    path('profile/users/<int:user_pk>/insureds/<int:insured_pk>/insurances/', InsuredInsurance.as_view(), name='insured-insurance'),
+
     path('profile/', ProfileDashboard.as_view(), name='profile-dashboard'),
 
     path('logout/', ProfileLogout.as_view(), name='profile-logout'),

@@ -64,10 +64,6 @@ class VerifyOTP(View):
 class ProfileDashboard(LoginRequiredMixin, View):
     template_name = 'user/profile.html'
 
-    @admin_only
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
     def get(self, request, *args, **kwargs):
         transactions = Transaction.get_today_transactions()
         total_amount = 0
@@ -81,10 +77,6 @@ class ProfileDashboard(LoginRequiredMixin, View):
 
 class ProfileEdit(LoginRequiredMixin, View):
     template_name = 'user/profile_edit.html'
-
-    @admin_only
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -100,10 +92,6 @@ class ProfileEdit(LoginRequiredMixin, View):
 
 class ProfileUsers(LoginRequiredMixin, View):
     template_name = 'user/profile_users.html'
-
-    @admin_only
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         key = request.GET.get('key')
@@ -124,10 +112,6 @@ class ProfileUsers(LoginRequiredMixin, View):
 class ProfileCreateUser(LoginRequiredMixin, View):
     template_name = 'user/profile_create_user.html'
 
-    @admin_only
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
 
@@ -139,10 +123,6 @@ class ProfileCreateUser(LoginRequiredMixin, View):
 
 class ProfileUserRetreive(LoginRequiredMixin, View):
     template_name = 'user/profile_edit.html'
-
-    @admin_only
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, pk, *args, **kwargs):
         user = CustomUser.objects.get(pk=pk)
@@ -165,10 +145,6 @@ class ProfileUserRetreive(LoginRequiredMixin, View):
 
 class ProfileUserDelete(LoginRequiredMixin, View):
 
-    @admin_only
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
     def get(self, request, pk, *args, **kwargs):
         user = CustomUser.objects.get(pk=pk)
         if request.user.role == 2 and user.role in [1, 2]:
@@ -184,10 +160,6 @@ class ProfileUserDelete(LoginRequiredMixin, View):
 
 class UserInsureds(LoginRequiredMixin, View):
     template_name = 'user/user_insureds.html'
-
-    @admin_only
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, pk, *args, **kwargs):
         user = CustomUser.objects.get(pk=pk)
@@ -210,10 +182,6 @@ class UserInsureds(LoginRequiredMixin, View):
 
 class UserInsuredDelete(LoginRequiredMixin, View):
 
-    @admin_only
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
     def get(self, request, user_pk, insured_pk, *args, **kwargs):
         if request.user.role == 2:
             messages.error(request, 'پشتیبان نمیتواند دارایی را حذف کند.')
@@ -228,10 +196,6 @@ class UserInsuredDelete(LoginRequiredMixin, View):
 
 
 class UserInsuredAdd(LoginRequiredMixin, View):
-
-    @admin_only
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, pk, *args, **kwargs):
         name = request.POST.get('name')
@@ -257,10 +221,6 @@ class UserInsuredAdd(LoginRequiredMixin, View):
 
 class UserInsuredEdit(LoginRequiredMixin, View):
     template_name = 'user/user_insured_edit.html'
-
-    @admin_only
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, user_pk, insured_pk, *args, **kwargs):
         user = CustomUser.objects.get(pk=user_pk)
@@ -294,6 +254,23 @@ class UserInsuredEdit(LoginRequiredMixin, View):
                 InsuredAttributeValue.objects.create(attribute=attribute, value=name, insured=insured)
 
         return redirect('user-insureds', pk=user_pk)
+
+
+class InsuredInsurance(LoginRequiredMixin, View):
+    template_name = 'user/insured_insurances.html'
+
+    def get(self, request, user_pk, insured_pk, *args, **kwargs):
+        user = CustomUser.objects.get(pk=user_pk)
+        insured = user.insureds.get(pk=insured_pk)
+        insurances = insured.insurances.all()
+
+        return render(request, self.template_name, context={'user': user, 'insured': insured, 'insurances': insurances})
+
+
+class InsuredInsuranceAdd(LoginRequiredMixin, View):
+
+    def post(self, request, user_pk, insured_pk, *args, **kwargs):
+        print(request.POST)
 
 
 class ErrorPage(View):

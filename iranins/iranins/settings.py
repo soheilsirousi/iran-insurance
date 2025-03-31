@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'insurance.apps.InsuranceConfig',
     'transaction.apps.TransactionConfig',
+    'django_jalali',
 ]
 
 MIDDLEWARE = [

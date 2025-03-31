@@ -16,6 +16,11 @@ body {
     background-color: #f4f4f4;
 }
 
+.logo {
+    margin-top: 3px;
+    margin-left: 10px;
+}
+
 .profile-container {
     display: flex;
     flex-direction: column;
@@ -1001,4 +1006,25 @@ body {
 
 .remove-property-btn:hover {
     background-color: #ffe0e0;
+}
+
+/* پنل اقساط - اصلاح شده */
+.installments-panel {
+    padding: 20px;
+    border-top: 1px solid #edf2f7;
+    background-color: #f9fafb;
+    display: none;
+    position: relative; /* مهم برای جلوگیری از به هم ریختن طرح */
+}
+
+/* تغییر ساختار کلی برای جلوگیری از حرکت کارت‌های پایین */
+.insurance-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+    align-items: start !important; /* مهم - این خط باعث می‌شود کارت‌ها از بالا تراز شوند */
+}
+
+.insurance-card {
+    position: relative;
 }

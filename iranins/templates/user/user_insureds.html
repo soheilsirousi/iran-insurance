@@ -62,7 +62,7 @@
                             </div>
                         </div>
                         <div class="asset-actions">
-                            <button class="action-btn insurance-btn">بیمه‌ها</button>
+                            <a href="{% url 'insured-insurance' user.id insured.id %}"><button class="action-btn insurance-btn">بیمه‌ها</button></a>
                             <a href="{% url 'user-insured-edit' user.id insured.id %}"><button class="action-btn edit-btn">ویرایش</button></a>
                             <a href="{% url 'user-insured-delete' user.id insured.id %}">
                                 <button class="action-btn delete-btn">حذف</button>

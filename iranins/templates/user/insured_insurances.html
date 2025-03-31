@@ -1,0 +1,205 @@
+{% extends "user/profile_base.html" %}
+{% load static %}
+{% load jformat %}
+
+{% block content %}
+    <link rel="stylesheet" href="{% static 'insurances/css/styles.css' %}">
+
+    <div class="insurance-dashboard">
+        <div class="insurance-dashboard-header">
+            <h3 class="dashboard-title">بیمه‌های {{ insured.name }}</h3>
+            <button class="btn-add-insurance">+ افزودن بیمه جدید</button>
+        </div>
+
+        <div class="insurance-cards-container">
+            {% for insurance in insurances %}
+                <div class="insurance-card">
+                    <div class="insurance-card-header">
+                        <div class="insurance-type">بیمه {{ insurance.get_insurance_type_display }}</div>
+                        <div class="insurance-status {% if insurance.is_active %}active{% else %}expired{% endif %}">
+                            {% if insurance.is_active %}
+                            فعال
+                            {% else %}
+                            منقضی شده
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="insurance-card-body">
+                        <div class="insurance-info-row">
+                            <div class="info-item">
+                                <div class="info-label">شماره بیمه‌نامه:</div>
+                                <div class="info-value">{{ insurance.insurance_number }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">بیمه کننده:</div>
+                                <div class="info-value">{{ insurance.insurer.get_full_name }}</div>
+                            </div>
+                        </div>
+
+                        <div class="insurance-info-row">
+                            <div class="info-item">
+                                <div class="info-label">تاریخ شروع:</div>
+                                <div class="info-value">{{ insurance.start_at|jformat:"%Y/%m/%d" }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">تاریخ انقضا:</div>
+                                <div class="info-value">{{ insurance.end_at|jformat:"%Y/%m/%d" }}</div>
+                            </div>
+                        </div>
+
+                        <div class="insurance-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {{ insurance.days_remaining_percentage }}%;"></div>
+                            </div>
+                            <div class="progress-info">
+                                <span class="days-remaining">{{ insurance.days_remaining }} روز مانده</span>
+                                <span class="percentage">{{ insurance.days_remaining_percentage }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="insurance-card-footer">
+                        <button class="btn-installments" data-toggle="installments-1">اقساط</button>
+                        <button class="btn-edit">ویرایش</button>
+                        <button class="btn-delete">حذف</button>
+                    </div>
+
+                    <div class="installments-panel" id="installments-1">
+                        <div class="installments-title">
+                            <span>اقساط پرداختی</span>
+                            <span class="installment-badge paid">2 از 4 پرداخت شده</span>
+                        </div>
+
+                        <div class="installment-items">
+                            <div class="installment-item paid">
+                                <div class="installment-number">قسط 1</div>
+                                <div class="installment-amount">2,500,000 تومان</div>
+                                <div class="installment-date">1403/01/15</div>
+                                <div class="installment-badge small">پرداخت شده</div>
+                            </div>
+
+                            <div class="installment-item paid">
+                                <div class="installment-number">قسط 2</div>
+                                <div class="installment-amount">2,500,000 تومان</div>
+                                <div class="installment-date">1403/04/15</div>
+                                <div class="installment-badge small">پرداخت شده</div>
+                            </div>
+
+                            <div class="installment-item">
+                                <div class="installment-number">قسط 3</div>
+                                <div class="installment-amount">2,500,000 تومان</div>
+                                <div class="installment-date">1403/07/15</div>
+                                <div class="installment-badge small unpaid">در انتظار پرداخت</div>
+                            </div>
+
+                            <div class="installment-item">
+                                <div class="installment-number">قسط 4</div>
+                                <div class="installment-amount">2,500,000 تومان</div>
+                                <div class="installment-date">1403/10/15</div>
+                                <div class="installment-badge small unpaid">در انتظار پرداخت</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- مودال افزودن بیمه جدید -->
+    <div class="modal-overlay" id="new-insurance-modal">
+        <div class="insurance-modal">
+            <div class="modal-header">
+                <div class="modal-title">افزودن بیمه جدید</div>
+                <button class="modal-close">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <form id="new-insurance-form" method="post" action="{% url 'insured-insurance-add' user.id insured.id %}">
+                    {% csrf_token %}
+                    <div class="form-section">
+                        <div class="form-section-title">اطلاعات پایه</div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="insurance-type">نوع بیمه</label>
+                                <select id="insurance-type" class="form-control" name="insurance_type">
+                                    <option value="third-party">بیمه شخص ثالث</option>
+                                    <option value="comprehensive">بیمه بدنه</option>
+                                    <option value="fire">بیمه آتش سوزی</option>
+                                    <option value="liability">بیمه مسئولیت</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="insurance-company">بیمه کننده</label>
+                                <input type="text" id="insurer" class="form-control" name="insurer"
+                                       value="{{ request.user.get_full_name }}" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="policy-number">شماره بیمه‌نامه</label>
+                                <input type="text" id="policy-number" class="form-control" name="insurance_number"
+                                       placeholder="شماره بیمه‌نامه را وارد کنید">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="start-date">تاریخ شروع</label>
+                                <input type="text" id="start-date" class="form-control" name="start_at" placeholder="1403/01/01">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="expiry-date">تاریخ انقضا</label>
+                                <input type="text" id="expiry-date" class="form-control" name="end_at" placeholder="1404/01/01">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-section-title">اطلاعات مالی</div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="total-amount">مبلغ کل بیمه (تومان)</label>
+                                <input type="text" id="total-amount" class="form-control" name="amount"
+                                       placeholder="مثال: 10,000,000">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="payment-type">نحوه پرداخت</label>
+                                <select id="payment-type" class="form-control" name="payment">
+                                    <option value="full">یکجا</option>
+                                    <option value="installment">اقساطی</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group installment-options">
+                                <label for="installment-count">تعداد اقساط</label>
+                                <select id="installment-count" class="form-control" name="installment_count">
+                                    <option value="2">2 قسط</option>
+                                    <option value="3">3 قسط</option>
+                                    <option value="4">4 قسط</option>
+                                    <option value="5">5 قسط</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel">انصراف</button>
+                        <button type="submit" class="btn-submit">ثبت بیمه</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'insurances/js/scripts.js' %}"></script>
+
+{% endblock %}
