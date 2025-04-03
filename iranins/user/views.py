@@ -9,8 +9,8 @@ from django.shortcuts import render, redirect
 from django.views import View
 from unicodedata import category
 
-from insurance.models import Category, Insured, Attribute, InsuredAttributeValue
-from transaction.models import Transaction
+from insurance.models import Category, Insured, Attribute, InsuredAttributeValue, Insurance
+from transaction.models import Transaction, Installment
 from user.models import CustomUser
 from user.utils.decorator import admin_only
 from user.utils.otp import generate_otp, verify_otp
@@ -187,9 +187,7 @@ class UserInsuredDelete(LoginRequiredMixin, View):
             messages.error(request, 'پشتیبان نمیتواند دارایی را حذف کند.')
             return redirect('user-insureds', pk=user_pk)
 
-        user = CustomUser.objects.get(pk=user_pk)
-        insured = user.insureds.get(pk=insured_pk)
-
+        insured = Insured.objects.get(pk=insured_pk)
         insured.delete()
 
         return redirect('user-insureds', pk=user_pk)
@@ -262,7 +260,7 @@ class InsuredInsurance(LoginRequiredMixin, View):
     def get(self, request, user_pk, insured_pk, *args, **kwargs):
         user = CustomUser.objects.get(pk=user_pk)
         insured = user.insureds.get(pk=insured_pk)
-        insurances = insured.insurances.all()
+        insurances = insured.insurances.all().order_by('-start_at')
 
         return render(request, self.template_name, context={'user': user, 'insured': insured, 'insurances': insurances})
 
@@ -270,7 +268,43 @@ class InsuredInsurance(LoginRequiredMixin, View):
 class InsuredInsuranceAdd(LoginRequiredMixin, View):
 
     def post(self, request, user_pk, insured_pk, *args, **kwargs):
-        print(request.POST)
+        insured = Insured.objects.get(pk=insured_pk)
+        insurance = Insurance.open_insurance(request.user, insured, request.POST)
+        Installment.set_installments(insurance, request.POST.get('payment'), int(request.POST.get('installment_count')))
+        return redirect('insured-insurance', user_pk=user_pk, insured_pk=insured_pk)
+
+
+class InsuredInsuranceDelete(LoginRequiredMixin, View):
+
+    def get(self, request, user_pk, insured_pk, insurance_pk, *args, **kwargs):
+        if request.user.role == 2:
+            messages.error(request, 'پشتیبان نمیتواند بیمه را حذف کند.')
+            return redirect('insured-insurance', user_pk=user_pk, insured_pk=insured_pk)
+
+        insurance = Insurance.objects.get(pk=insurance_pk)
+        insurance.delete()
+        return redirect('insured-insurance', user_pk=user_pk, insured_pk=insured_pk)
+
+
+class InsuredInsuranceEdit(LoginRequiredMixin, View):
+    template_name = 'user/insured_insurance_edit.html'
+
+    def get(self, request, user_pk, insured_pk, insurance_pk, *args, **kwargs):
+        user = CustomUser.objects.get(pk=user_pk)
+        insured = Insured.objects.get(pk=insured_pk)
+        insurance = Insurance.objects.get(pk=insurance_pk)
+
+        return render(request, self.template_name, {'user': user, 'insured': insured, 'insurance': insurance})
+
+
+class InstallmentPay(LoginRequiredMixin, View):
+
+    def get(self, request, user_pk, insured_pk, insurance_pk, installment_pk, *args, **kwargs):
+        installment = Installment.objects.get(pk=installment_pk)
+        installment.is_complete = True
+        installment.save()
+        transaction = Transaction.objects.create(installment=installment, amount=installment.amount, is_paid=True)
+        return redirect('insured-insurance', user_pk=user_pk, insured_pk=insured_pk)
 
 
 class ErrorPage(View):

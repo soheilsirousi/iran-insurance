@@ -1,3 +1,4 @@
+import datetime
 from django.contrib.auth import login
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -114,3 +115,14 @@ class CustomUser(AbstractUser):
             user.image = path
 
         user.save()
+
+    @classmethod
+    def get_today(cls):
+        return datetime.date.today()
+
+    @classmethod
+    def get_year_later(cls):
+        today = cls.get_today()
+        return datetime.date(year=today.year+1, month=today.month, day=today.day)
+
+

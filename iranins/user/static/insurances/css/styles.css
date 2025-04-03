@@ -74,7 +74,7 @@ form {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
+    overflow: visible;
     transition: all 0.3s ease;
     border: 1px solid #e2e8f0;
     position: relative;
@@ -313,6 +313,7 @@ form {
     font-weight: 600;
     color: #2d3748;
     width: 80px;
+    font-size: 12px;
 }
 
 .installment-amount {
@@ -513,6 +514,26 @@ select.form-control {
 
 .btn-submit:hover {
     background-color: #38a169;
+}
+
+.link-pay-installment {
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-family: 'Vazir', sans-serif;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    margin-left: 15px;
+}
+
+.link-pay-installment:hover {
+    background-color: #2b6cb0;
 }
 
 /* پاسخگویی */

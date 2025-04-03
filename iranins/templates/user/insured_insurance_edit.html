@@ -1,0 +1,266 @@
+{% extends "user/profile_base.html" %}
+{% load static %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="error-container">
+                <div class="error-alert">
+                    <button class="error-close">&times;</button>
+                    <div class="error-content">
+                        <div class="error-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                        <div class="error-message">
+                            {{ message }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="user-management-container">
+        <h2>ویرایش دارایی {{ insured.name }}</h2>
+
+        <form method="post" enctype="multipart/form-data" class="edit-form"
+              action="{% url 'insured-insurance-edit' user.id insured.id insurance.id %}">
+            {% csrf_token %}
+
+            <h3 class="form-heading">اطلاعات بیمه</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="asset-type">نوع بیمه</label>
+                    <select id="asset-type" class="form-select" name="insurance_type" required>
+                        {% if insurance.insurance_type == 1 %}
+                            <option value="third-party" selected>بیمه شخص ثالث</option>
+                            <option value="comprehensive">بیمه بدنه</option>
+                            <option value="fire">بیمه آتش سوزی</option>
+                            <option value="liability">بیمه مسئولیت</option>
+                        {% elif insurance.insurance_type == 2 %}
+                            <option value="third-party">بیمه شخص ثالث</option>
+                            <option value="comprehensive" selected>بیمه بدنه</option>
+                            <option value="fire">بیمه آتش سوزی</option>
+                            <option value="liability">بیمه مسئولیت</option>
+                        {% elif insurance.insurance_type == 3 %}
+                            <option value="third-party">بیمه شخص ثالث</option>
+                            <option value="comprehensive">بیمه بدنه</option>
+                            <option value="fire" selected>بیمه آتش سوزی</option>
+                            <option value="liability">بیمه مسئولیت</option>
+                        {% elif insurance.insurance_type == 4 %}
+                            <option value="third-party">بیمه شخص ثالث</option>
+                            <option value="comprehensive">بیمه بدنه</option>
+                            <option value="fire">بیمه آتش سوزی</option>
+                            <option value="liability" selected>بیمه مسئولیت</option>
+                        {% endif %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="asset-name">بیمه کننده</label>
+                    <input type="text" id="asset-name" class="form-input" name="insurer"
+                           value="{{ insurance.insurer.get_full_name }}" readonly>
+                </div>
+
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="owner-phone">شماره بیمه‌نامه</label>
+                    <input type="tel" id="owner-phone" class="form-input" name="insurance_number"
+                           value="{{ insurance.insurance_number }}" required>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'insured-insurance' user.id insured.id %}" class="cancel-btn">انصراف</a>
+                <button type="submit" class="submit-btn">ذخیره تغییرات</button>
+            </div>
+        </form>
+    </div>
+
+    <style>
+        .user-management-container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .edit-form {
+            width: 100%;
+        }
+
+        .form-heading {
+            margin: 30px 0 15px 0;
+            color: #333;
+            font-size: 18px;
+            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 10px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            margin-top: 13px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+
+        .property-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 15px;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 15px;
+        }
+
+        .remove-property-btn {
+            background-color: transparent;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 3px;
+            transition: background-color 0.2s;
+        }
+
+        .remove-property-btn:hover {
+            background-color: #f8d7da;
+        }
+
+        .add-property-btn {
+            background-color: #f0f0f0;
+            border: 1px dashed #ccc;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            margin-bottom: 30px;
+        }
+
+        .add-property-btn span {
+            margin-right: 5px;
+            font-size: 18px;
+        }
+
+        .add-property-btn:hover {
+            background-color: #e8e8e8;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .cancel-btn {
+            background-color: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+            margin-top: 19px;
+            height: 20px;
+            padding: 10px 70px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .submit-btn {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .cancel-btn:hover {
+            background-color: #eaeaea;
+        }
+
+        .submit-btn:hover {
+            background-color: #3a80d2;
+        }
+
+        /* استایل پیام‌های خطا */
+        .error-container {
+            margin-bottom: 20px;
+        }
+
+        .error-alert {
+            background-color: #fff3f3;
+            border: 1px solid #ffcaca;
+            border-radius: 4px;
+            padding: 15px;
+        }
+
+        .error-close {
+            float: left;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .error-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .error-icon {
+            color: #e74c3c;
+            margin-left: 10px;
+        }
+
+        .error-message {
+            color: #333;
+        }
+    </style>
+
+{% endblock %}

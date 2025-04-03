@@ -11,18 +11,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Close all other open panels first
             document.querySelectorAll('.installments-panel').forEach(panel => {
-                if (panel.id !== targetId && panel.style.display === 'block') {
+                if (panel.id !== targetId && panel.classList.contains('active')) {
+                    panel.classList.remove('active');
                     panel.style.display = 'none';
                     panel.closest('.insurance-card').style.zIndex = '1';
                 }
             });
 
             // Toggle the current panel
-            if (installmentsPanel.style.display === 'block') {
+            if (installmentsPanel.classList.contains('active')) {
+                installmentsPanel.classList.remove('active');
                 installmentsPanel.style.display = 'none';
                 card.style.zIndex = '1';
             } else {
                 // Position the panel correctly and show it
+                installmentsPanel.classList.add('active');
                 installmentsPanel.style.display = 'block';
                 card.style.zIndex = '100';
             }
@@ -33,12 +36,18 @@ document.addEventListener('DOMContentLoaded', function () {
     document.addEventListener('click', function (e) {
         if (!e.target.closest('.btn-installments') && !e.target.closest('.installments-panel')) {
             document.querySelectorAll('.installments-panel').forEach(panel => {
-                if (panel.style.display === 'block') {
+                if (panel.classList.contains('active')) {
+                    panel.classList.remove('active');
                     panel.style.display = 'none';
                     panel.closest('.insurance-card').style.zIndex = '1';
                 }
             });
         }
+    });
+
+    // Initial setup - hide all installment panels
+    document.querySelectorAll('.installments-panel').forEach(panel => {
+        panel.style.display = 'none';
     });
 
     // بهبود استایل برای جلوگیری از کشیده شدن باکس‌های دیگر
@@ -56,7 +65,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         .installments-panel {
-            display: none;
             border-top: 1px solid #edf2f7;
             background-color: #f9fafb;
             padding: 20px;
@@ -139,6 +147,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const installmentOptions = document.querySelector('.installment-options');
 
     if (paymentTypeSelect && installmentOptions) {
+        // Hide installment options initially if payment is not installment
+        if (paymentTypeSelect.value !== 'installment') {
+            installmentOptions.style.display = 'none';
+        }
+
         paymentTypeSelect.addEventListener('change', function () {
             if (this.value === 'installment') {
                 installmentOptions.style.display = 'block';

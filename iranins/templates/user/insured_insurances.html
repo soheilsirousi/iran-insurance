@@ -1,9 +1,34 @@
 {% extends "user/profile_base.html" %}
 {% load static %}
 {% load jformat %}
+{% load humanize %}
 
 {% block content %}
     <link rel="stylesheet" href="{% static 'insurances/css/styles.css' %}">
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="error-container">
+                <div class="error-alert">
+                    <button class="error-close">&times;</button>
+                    <div class="error-content">
+                        <div class="error-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                        <div class="error-message">
+                            {{ message }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
 
     <div class="insurance-dashboard">
         <div class="insurance-dashboard-header">
@@ -16,11 +41,11 @@
                 <div class="insurance-card">
                     <div class="insurance-card-header">
                         <div class="insurance-type">بیمه {{ insurance.get_insurance_type_display }}</div>
-                        <div class="insurance-status {% if insurance.is_active %}active{% else %}expired{% endif %}">
-                            {% if insurance.is_active %}
-                            فعال
+                        <div class="insurance-status {% if insurance.days_remaining >= 0 %}active{% else %}expired{% endif %}">
+                            {% if insurance.days_remaining >= 0 %}
+                                فعال
                             {% else %}
-                            منقضی شده
+                                منقضی شده
                             {% endif %}
                         </div>
                     </div>
@@ -50,60 +75,73 @@
 
                         <div class="insurance-progress">
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: {{ insurance.days_remaining_percentage }}%;"></div>
-                            </div>
-                            <div class="progress-info">
-                                <span class="days-remaining">{{ insurance.days_remaining }} روز مانده</span>
-                                <span class="percentage">{{ insurance.days_remaining_percentage }}%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="insurance-card-footer">
-                        <button class="btn-installments" data-toggle="installments-1">اقساط</button>
-                        <button class="btn-edit">ویرایش</button>
-                        <button class="btn-delete">حذف</button>
-                    </div>
-
-                    <div class="installments-panel" id="installments-1">
-                        <div class="installments-title">
-                            <span>اقساط پرداختی</span>
-                            <span class="installment-badge paid">2 از 4 پرداخت شده</span>
-                        </div>
-
-                        <div class="installment-items">
-                            <div class="installment-item paid">
-                                <div class="installment-number">قسط 1</div>
-                                <div class="installment-amount">2,500,000 تومان</div>
-                                <div class="installment-date">1403/01/15</div>
-                                <div class="installment-badge small">پرداخت شده</div>
-                            </div>
-
-                            <div class="installment-item paid">
-                                <div class="installment-number">قسط 2</div>
-                                <div class="installment-amount">2,500,000 تومان</div>
-                                <div class="installment-date">1403/04/15</div>
-                                <div class="installment-badge small">پرداخت شده</div>
-                            </div>
-
-                            <div class="installment-item">
-                                <div class="installment-number">قسط 3</div>
-                                <div class="installment-amount">2,500,000 تومان</div>
-                                <div class="installment-date">1403/07/15</div>
-                                <div class="installment-badge small unpaid">در انتظار پرداخت</div>
-                            </div>
-
-                            <div class="installment-item">
-                                <div class="installment-number">قسط 4</div>
-                                <div class="installment-amount">2,500,000 تومان</div>
-                                <div class="installment-date">1403/10/15</div>
-                                <div class="installment-badge small unpaid">در انتظار پرداخت</div>
-                            </div>
-                        </div>
+                                {% if insurance.days_remaining > 243 %}
+                                    <div class="progress-fill"
+                                         style="width: {{ insurance.days_remaining_percentage }}%;"></div>
+                                    </div>
+                                {% elif insurance.days_remaining > 122 %}
+                                    <div class="progress-fill warning"
+                                         style="width: {{ insurance.days_remaining_percentage }}%;"></div>
+                                    </div>
+                                {% else %}
+                                    <div class="progress-fill expired"
+                                         style="width: {{ insurance.days_remaining_percentage }}%;"></div>
+                                    </div>
+                                {% endif %}
+                    <div class="progress-info">
+                                <span class="days-remaining">
+                                    {% if insurance.days_remaining >= 0 %}
+                                        {{ insurance.days_remaining }} روز مانده
+                                    {% else %}
+                                        {{ insurance.abs_days_remaining }} از انقضا گذشته
+                                    {% endif %}
+                                </span>
+                        <span class="percentage">{{ insurance.days_remaining_percentage }}%</span>
                     </div>
                 </div>
+                </div>
+
+                <div class="insurance-card-footer">
+                    <button class="btn-installments" data-toggle="installments-{{ insurance.id }}">اقساط</button>
+                    <a href="{% url 'insured-insurance-edit' user.id insured.id insurance.id %}">
+                        <button class="btn-edit">ویرایش</button>
+                    </a>
+                    <a href="{% url 'insured-insurance-delete' user.id insured.id insurance.id %}">
+                        <button class="btn-delete">حذف</button>
+                    </a>
+                </div>
+
+                <div class="installments-panel" id="installments-{{ insurance.id }}">
+                    <div class="installments-title">
+                        <span>اقساط پرداختی</span>
+                        <span class="installment-badge paid">{{ insurance.paid_installments_count }} از {{ insurance.installments.count }} پرداخت شده</span>
+                    </div>
+
+                    <div class="installment-items">
+                        {% for installment in insurance.installments.all %}
+
+                            <div class="installment-item paid">
+                                {% if forloop.counter == 1 %}
+                                <div class="installment-number">پیش پرداخت</div>
+                                    {% else %}
+                                <div class="installment-number">قسط {{ forloop.counter|add:"-1" }}</div>
+                            {% endif %}
+                                <div class="installment-amount">{{ installment.amount|intcomma }} تومان</div>
+                                <div class="installment-date">{{ installment.start_at|jformat:"%Y/%m/%d" }}</div>
+                                {% if installment.is_complete %}
+                                    <div class="installment-badge small">پرداخت شده</div>
+                                {% else %}
+                                    <a href="{% url 'installment-pay' user.id insured.id insurance.id installment.id %}" class="link-pay-installment">پرداخت</a>
+                                    <div class="installment-badge small unpaid">در انتظار پرداخت</div>
+                                {% endif %}
+                            </div>
+
+                        {% endfor %}
+                    </div>
+                </div>
+                </div>
             {% endfor %}
-        </div>
+    </div>
     </div>
 
     <!-- مودال افزودن بیمه جدید -->
@@ -115,7 +153,8 @@
             </div>
 
             <div class="modal-body">
-                <form id="new-insurance-form" method="post" action="{% url 'insured-insurance-add' user.id insured.id %}">
+                <form id="new-insurance-form" method="post"
+                      action="{% url 'insured-insurance-add' user.id insured.id %}">
                     {% csrf_token %}
                     <div class="form-section">
                         <div class="form-section-title">اطلاعات پایه</div>
@@ -149,12 +188,14 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="start-date">تاریخ شروع</label>
-                                <input type="text" id="start-date" class="form-control" name="start_at" placeholder="1403/01/01">
+                                <input type="text" id="start-date" class="form-control" name="start_at"
+                                       value="{{ user.get_today|jformat:"%Y/%m/%d" }}">
                             </div>
 
                             <div class="form-group">
                                 <label for="expiry-date">تاریخ انقضا</label>
-                                <input type="text" id="expiry-date" class="form-control" name="end_at" placeholder="1404/01/01">
+                                <input type="text" id="expiry-date" class="form-control" name="end_at"
+                                       value="{{ user.get_year_later|jformat:"%Y/%m/%d" }}">
                             </div>
                         </div>
                     </div>
@@ -186,6 +227,11 @@
                                     <option value="3">3 قسط</option>
                                     <option value="4">4 قسط</option>
                                     <option value="5">5 قسط</option>
+                                    <option value="6">6 قسط</option>
+                                    <option value="7">7 قسط</option>
+                                    <option value="8">8 قسط</option>
+                                    <option value="9">9 قسط</option>
+                                    <option value="10">10 قسط</option>
                                 </select>
                             </div>
                         </div>

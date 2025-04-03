@@ -19,7 +19,11 @@ urlpatterns = [
     path('profile/users/<int:pk>/insureds/', UserInsureds.as_view(), name='user-insureds'),
 
     path('profile/users/<int:user_pk>/insureds/<int:insured_pk>/insurances/add', InsuredInsuranceAdd.as_view(), name='insured-insurance-add'),
+    path('profile/users/<int:user_pk>/insureds/<int:insured_pk>/insurances/<int:insurance_pk>/delete/', InsuredInsuranceDelete.as_view(), name='insured-insurance-delete'),
+    path('profile/users/<int:user_pk>/insureds/<int:insured_pk>/insurances/<int:insurance_pk>/edit/', InsuredInsuranceEdit.as_view(), name='insured-insurance-edit'),
     path('profile/users/<int:user_pk>/insureds/<int:insured_pk>/insurances/', InsuredInsurance.as_view(), name='insured-insurance'),
+
+    path('profile/users/<int:user_pk>/insureds/<int:insured_pk>/insurances/<int:insurance_pk>/installment/<int:installment_pk>/pay/',InstallmentPay.as_view(), name='installment-pay'),
 
     path('profile/', ProfileDashboard.as_view(), name='profile-dashboard'),
 

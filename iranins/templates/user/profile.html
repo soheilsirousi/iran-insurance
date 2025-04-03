@@ -1,4 +1,5 @@
 {% extends "user/profile_base.html" %}
+{% load humanize %}
 
 {% block content %}
                 <section id="dashboard">
@@ -32,7 +33,7 @@
                                     <td>{{ transaction.installment.insurance.insured.owner.get_full_name }}</td>
                                     <td>{{ transaction.installment.insurance.insured.name }}</td>
                                     <td>{{ transaction.installment.insurance.insurance_number }}</td>
-                                    <td>{{ transaction.amount }} تومان</td>
+                                    <td>{{ transaction.amount|intcomma }} تومان</td>
                                     <td>{{ transaction.get_payment_type_display }}</td>
                                 </tr>
                             </tbody>
