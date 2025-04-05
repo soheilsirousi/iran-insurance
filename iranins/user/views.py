@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import login, logout
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
@@ -7,13 +7,11 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
-from unicodedata import category
-
 from insurance.models import Category, Insured, Attribute, InsuredAttributeValue, Insurance
 from transaction.models import Transaction, Installment
 from user.models import CustomUser
-from user.utils.decorator import admin_only
-from user.utils.otp import generate_otp, verify_otp
+from user.tasks import send_sms
+from user.utils.otp import generate_otp
 from user.utils.regex import check_phone
 
 
@@ -26,10 +24,6 @@ class UserLogin(View):
 
         return render(request, self.template_name)
 
-
-class SendOTP(View):
-    template_name = 'user/otp.html'
-
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect('profile-dashboard')
@@ -39,9 +33,11 @@ class SendOTP(View):
             return HttpResponse("Invalid phone pattern.")
 
         code = generate_otp(phone)
-
+        print(phone)
+        message = f'بیمه ایران - کد ورود {code}'
+        send_sms.delay(phone, message)
         print(code)
-        return render(request, self.template_name, context={'phone': phone})
+        return render(request, 'user/otp.html', context={'phone': phone})
 
 
 class VerifyOTP(View):

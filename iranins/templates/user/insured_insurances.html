@@ -118,7 +118,7 @@
                     </div>
 
                     <div class="installment-items">
-                        {% for installment in insurance.installments.all %}
+                        {% for installment in insurance.get_installments %}
 
                             <div class="installment-item paid">
                                 {% if forloop.counter == 1 %}

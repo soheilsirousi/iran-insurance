@@ -109,6 +109,9 @@ class Insurance(models.Model):
     def paid_installments_count(self):
         return self.installments.filter(is_complete=True).count()
 
+    def get_installments(self):
+        return self.installments.all().order_by('start_at')
+
 class Attribute(models.Model):
     name = models.CharField(max_length=100, verbose_name=_('name'))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('created at'))

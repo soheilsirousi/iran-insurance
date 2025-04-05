@@ -11,6 +11,7 @@ class Installment(models.Model):
     start_at = models.DateField(verbose_name=_('start at'), null=False, blank=False)
     end_at = models.DateField(verbose_name=_('end at'), null=False, blank=False)
     is_complete = models.BooleanField(verbose_name=_('is complete'), default=False)
+    last_reminder_sent = models.DateField(null=True, blank=True, verbose_name=_('last reminder sent'))
 
     class Meta:
         verbose_name = _('Installment')
