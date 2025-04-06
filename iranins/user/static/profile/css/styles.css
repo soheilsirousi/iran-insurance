@@ -306,7 +306,7 @@ button {
     gap: 5px;
 }
 
-.edit-btn, .delete-btn, .insurance-btn {
+.edit-btn, .delete-btn, .insurance-btn, .transaction-btn {
     margin: 0 2px;
     padding: 5px 10px;
     border: none;
@@ -327,6 +327,11 @@ button {
 
 .insurance-btn {
     background-color: #17a2b8;
+    color: white;
+}
+
+.transaction-btn {
+    background-color: green;
     color: white;
 }
 

@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os.path
 from pathlib import Path
+
+from celery.schedules import crontab
+
 from .local_settings import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -161,4 +164,11 @@ SMS_BROKER = {
         'password': SMS_PASSWORD,
         'number': SMS_NUMBER,
     }
+}
+
+CELERY_BEAT_SCHEDULE = {
+    'remind_installments': {
+        'task': 'user.tasks.remind_installments',
+        'schedule': crontab(hour=0, minute=0),
+    },
 }

@@ -6,9 +6,10 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+import datetime
 from django.views import View
 from insurance.models import Category, Insured, Attribute, InsuredAttributeValue, Insurance
-from transaction.models import Transaction, Installment
+from transaction.models import Transaction, Installment, Balance
 from user.models import CustomUser
 from user.tasks import send_sms
 from user.utils.otp import generate_otp
@@ -61,13 +62,13 @@ class ProfileDashboard(LoginRequiredMixin, View):
     template_name = 'user/profile.html'
 
     def get(self, request, *args, **kwargs):
-        transactions = Transaction.get_today_transactions()
+        installments = Installment.get_today_paid_installments()
         total_amount = 0
-        for transaction in transactions:
-            total_amount += transaction.amount
+        for installment in installments:
+            total_amount += installment.amount
 
-        count = transactions.count()
-        data = {'count': count, 'transactions': transactions, 'total_amount': f'{total_amount:,}'}
+        count = installments.count()
+        data = {'count': count, 'installments': installments, 'total_amount': f'{total_amount:,}'}
         return render(request, self.template_name, context=data)
 
 
@@ -297,8 +298,11 @@ class InstallmentPay(LoginRequiredMixin, View):
 
     def get(self, request, user_pk, insured_pk, insurance_pk, installment_pk, *args, **kwargs):
         installment = Installment.objects.get(pk=installment_pk)
+        installment.pay_at = datetime.date.today()
         installment.is_complete = True
         installment.save()
+        Balance.objects.create(user=installment.insurance.insured.owner, amount=installment.amount, balance_type=Balance.DEPOSIT)
+        Balance.objects.create(user=installment.insurance.insured.owner, amount=installment.amount, balance_type=Balance.WITHDRAW)
         transaction = Transaction.objects.create(installment=installment, amount=installment.amount, is_paid=True)
         return redirect('insured-insurance', user_pk=user_pk, insured_pk=insured_pk)
 

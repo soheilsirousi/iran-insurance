@@ -1,5 +1,5 @@
 from django.contrib import admin
-from transaction.models import Transaction, Installment
+from transaction.models import Transaction, Installment, Balance
 
 
 @admin.register(Installment)
@@ -9,4 +9,10 @@ class InstallmentAdmin(admin.ModelAdmin):
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('invoice_number', 'installment', 'payment_type', 'amount', 'is_paid')
+    list_display = ('invoice_number', 'installment', 'amount', 'is_paid')
+
+
+@admin.register(Balance)
+class BalanceAdmin(admin.ModelAdmin):
+    list_display = ('user', 'balance_type', 'amount', 'created_at')
+

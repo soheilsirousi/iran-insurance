@@ -1,5 +1,6 @@
 import datetime
 import uuid
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from insurance.models import Insurance
@@ -11,6 +12,7 @@ class Installment(models.Model):
     start_at = models.DateField(verbose_name=_('start at'), null=False, blank=False)
     end_at = models.DateField(verbose_name=_('end at'), null=False, blank=False)
     is_complete = models.BooleanField(verbose_name=_('is complete'), default=False)
+    pay_at = models.DateField(verbose_name=_('pay at'), null=True, blank=True)
     last_reminder_sent = models.DateField(null=True, blank=True, verbose_name=_('last reminder sent'))
 
     class Meta:
@@ -19,6 +21,13 @@ class Installment(models.Model):
 
     def __str__(self):
         return f'{self.insurance} {self.amount} {self.start_at} {self.end_at}'
+
+    @classmethod
+    def get_today_paid_installments(cls):
+        now = datetime.date.today()
+        installments = cls.objects.filter(pay_at=now, is_complete=True)
+
+        return installments
 
     @classmethod
     def set_installments(cls, insurance, payment, installment_count):
@@ -41,7 +50,11 @@ class Installment(models.Model):
 
         instance = cls.objects.create(insurance=insurance, amount=prepayment,
                                       start_at=datetime.date.today(), end_at=datetime.date.today(),
-                                      is_complete=True)
+                                      pay_at=datetime.date.today(), is_complete=True)
+        Balance.objects.create(user=insurance.insured.owner, amount=prepayment,
+                               balance_type=Balance.DEPOSIT)
+        Balance.objects.create(user=insurance.insured.owner, amount=prepayment,
+                               balance_type=Balance.WITHDRAW)
         Transaction.objects.create(installment=instance, amount=prepayment, is_paid=True)
         prev = instance
         remain = insurance.amount - prepayment
@@ -52,17 +65,8 @@ class Installment(models.Model):
 
 
 class Transaction(models.Model):
-    POS = 1
-    CARD = 2
-
-    choices = (
-        (POS, _('کارتخوان')),
-        (CARD, _('کارت به کارت')),
-    )
-
     invoice_number = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name=_('invoice number'))
     installment = models.OneToOneField(Installment, on_delete=models.CASCADE, related_name='transaction', verbose_name=_('installment'))
-    payment_type = models.PositiveSmallIntegerField(choices=choices, verbose_name=_('payment type'), default=CARD)
     amount = models.PositiveBigIntegerField(verbose_name=_('amount'), null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('created at'))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('updated at'))
@@ -75,10 +79,24 @@ class Transaction(models.Model):
     def __str__(self):
         return f'{self.invoice_number}'
 
-    @classmethod
-    def get_today_transactions(cls):
-        now = datetime.date.today()
-        transactions = Transaction.objects.filter(created_at__gte=now, is_paid=True)
 
-        return transactions
 
+
+class Balance(models.Model):
+    DEPOSIT = 1
+    WITHDRAW = 2
+
+    choices = (
+        (DEPOSIT, 'واریز'),
+        (WITHDRAW, 'برداشت'),
+    )
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='balances', verbose_name=_('user'))
+    balance_type = models.PositiveSmallIntegerField(choices=choices, verbose_name=_('type'), default=DEPOSIT)
+    amount = models.PositiveBigIntegerField(verbose_name=_('amount'), null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('created at'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('updated at'))
+
+    class Meta:
+        verbose_name = _('Balance')
+        verbose_name_plural = _('Balances')

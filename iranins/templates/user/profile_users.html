@@ -63,6 +63,7 @@
                 <td>
                     <div class="action-buttons">
                         <a href="{% url 'user-insureds' user.id %}"><button class="insurance-btn">دارایی ها</button></a>
+                        <a href="{% url 'user-transactions' user.id %}"><button class="transaction-btn">تراکنش ها</button></a>
                         <a href="{% url 'profile-user-retrieve' user.id %}"><button class="edit-btn">ویرایش</button></a>
                         <a href="{% url 'profile-user-delete' user.id %}"><button class="delete-btn">حذف</button></a>
                     </div>
