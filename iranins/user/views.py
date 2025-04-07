@@ -9,6 +9,7 @@ from django.shortcuts import render, redirect
 import datetime
 from django.views import View
 from insurance.models import Category, Insured, Attribute, InsuredAttributeValue, Insurance
+from log.models import Log
 from transaction.models import Transaction, Installment, Balance
 from user.models import CustomUser
 from user.tasks import send_sms
@@ -83,7 +84,7 @@ class ProfileEdit(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         CustomUser.edit_user(request.user, request.POST, request.FILES)
-
+        Log.create_log(request.user, request.user, Log.EDIT, request.user)
         return redirect('profile-edit')
 
 
@@ -113,8 +114,8 @@ class ProfileCreateUser(LoginRequiredMixin, View):
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
-        CustomUser.create_user(request.POST, request.FILES)
-
+        user = CustomUser.create_user(request.POST, request.FILES)
+        Log.create_log(request.user, user, Log.CREATE, user)
         return redirect('profile-users')
 
 
@@ -136,7 +137,7 @@ class ProfileUserRetreive(LoginRequiredMixin, View):
             return redirect('profile-users')
 
         CustomUser.edit_user(user, request.POST, request.FILES)
-
+        Log.create_log(request.user, user, Log.EDIT, user)
         return redirect('profile-users')
 
 
@@ -151,6 +152,7 @@ class ProfileUserDelete(LoginRequiredMixin, View):
             messages.error(request, "نمیتوانید خودتان را حذف کنید.")
             return redirect('profile-users')
 
+        Log.create_log(request.user, user, Log.DELETE, user)
         user.delete()
         return redirect('profile-users')
 
@@ -185,6 +187,7 @@ class UserInsuredDelete(LoginRequiredMixin, View):
             return redirect('user-insureds', pk=user_pk)
 
         insured = Insured.objects.get(pk=insured_pk)
+        Log.create_log(request.user, insured.owner, Log.DELETE, insured)
         insured.delete()
 
         return redirect('user-insureds', pk=user_pk)
@@ -211,6 +214,7 @@ class UserInsuredAdd(LoginRequiredMixin, View):
             elif title.startswith('property-value-'):
                 InsuredAttributeValue.objects.create(attribute=attribute, value=name, insured=insured)
 
+        Log.create_log(request.user, insured.owner, Log.CREATE, insured)
         return redirect('user-insureds', pk=pk)
 
 
@@ -248,6 +252,7 @@ class UserInsuredEdit(LoginRequiredMixin, View):
             elif title.startswith('attribute_values'):
                 InsuredAttributeValue.objects.create(attribute=attribute, value=name, insured=insured)
 
+        Log.create_log(request.user, insured.owner, Log.EDIT, insured)
         return redirect('user-insureds', pk=user_pk)
 
 
@@ -267,7 +272,10 @@ class InsuredInsuranceAdd(LoginRequiredMixin, View):
     def post(self, request, user_pk, insured_pk, *args, **kwargs):
         insured = Insured.objects.get(pk=insured_pk)
         insurance = Insurance.open_insurance(request.user, insured, request.POST)
-        Installment.set_installments(insurance, request.POST.get('payment'), int(request.POST.get('installment_count')))
+        Installment.set_installments(insurance, request.POST.get('payment'), int(request.POST.get('installment_count'))
+                                     , request.POST.get('start_at'))
+
+        Log.create_log(request.user, insurance.insured.owner, Log.CREATE, insurance)
         return redirect('insured-insurance', user_pk=user_pk, insured_pk=insured_pk)
 
 
@@ -279,6 +287,7 @@ class InsuredInsuranceDelete(LoginRequiredMixin, View):
             return redirect('insured-insurance', user_pk=user_pk, insured_pk=insured_pk)
 
         insurance = Insurance.objects.get(pk=insurance_pk)
+        Log.create_log(request.user, insurance.insured.owner, Log.DELETE, insurance)
         insurance.delete()
         return redirect('insured-insurance', user_pk=user_pk, insured_pk=insured_pk)
 
@@ -293,6 +302,28 @@ class InsuredInsuranceEdit(LoginRequiredMixin, View):
 
         return render(request, self.template_name, {'user': user, 'insured': insured, 'insurance': insurance})
 
+    def post(self, request, user_pk, insured_pk, insurance_pk, *args, **kwargs):
+        insurance = Insurance.objects.get(pk=insurance_pk)
+        insurance_type = request.POST.get('insurance_type')
+        insurance_number = request.POST.get('insurance_number')
+
+        if insurance_number:
+            insurance.insurance_number = insurance_number
+
+        if insurance_type:
+            if insurance_type == 'third-party':
+                insurance.insurance_type = insurance.THIRD_PARTY
+            elif insurance_type == 'comprehensive':
+                insurance.insurance_type = insurance.COMPREHENSIVE
+            elif insurance_type == 'fire':
+                insurance.insurance_type = insurance.FIRE
+            elif insurance.insurance_type == 'liability':
+                insurance.insurance_type = insurance.LIABILITY
+
+        insurance.save()
+        Log.create_log(request.user, insurance.insured.owner, Log.EDIT, insurance)
+        return redirect('insured-insurance', user_pk=user_pk, insured_pk=insured_pk)
+
 
 class InstallmentPay(LoginRequiredMixin, View):
 
@@ -304,6 +335,8 @@ class InstallmentPay(LoginRequiredMixin, View):
         Balance.objects.create(user=installment.insurance.insured.owner, amount=installment.amount, balance_type=Balance.DEPOSIT)
         Balance.objects.create(user=installment.insurance.insured.owner, amount=installment.amount, balance_type=Balance.WITHDRAW)
         transaction = Transaction.objects.create(installment=installment, amount=installment.amount, is_paid=True)
+
+        Log.create_log(request.user, installment.insurance.insured.owner, Log.EDIT, installment)
         return redirect('insured-insurance', user_pk=user_pk, insured_pk=insured_pk)
 
 

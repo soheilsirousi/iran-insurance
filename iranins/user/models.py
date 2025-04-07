@@ -4,8 +4,11 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models import Sum, Q
+from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 
+from transaction.models import Balance
 from user.managers import CustomUserManager
 from user.utils.otp import verify_otp
 
@@ -37,6 +40,16 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.phone
+
+    def get_balance(self):
+        positive_amounts = Coalesce(Sum('amount', filter=Q(balance_type=1)), 0)
+        negative_amounts = Coalesce(Sum('amount', filter=Q(balance_type=2)), 0)
+
+        instance = Balance.objects.filter(user=self).aggregate(
+            balance=positive_amounts - negative_amounts
+        )
+
+        return instance['balance']
 
     @classmethod
     def login_user(cls, request, phone, otp):
@@ -82,6 +95,8 @@ class CustomUser(AbstractUser):
             user.image = path
 
         user.save()
+
+        return user
 
 
     @classmethod

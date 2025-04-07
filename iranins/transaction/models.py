@@ -2,6 +2,8 @@ import datetime
 import uuid
 from django.conf import settings
 from django.db import models
+from django.db.models import Q, Sum
+from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from insurance.models import Insurance
 
@@ -30,10 +32,11 @@ class Installment(models.Model):
         return installments
 
     @classmethod
-    def set_installments(cls, insurance, payment, installment_count):
+    def set_installments(cls, insurance, payment, installment_count, start_at):
+        start_time = Insurance.convert_date(start_at)
         if payment == 'full':
-            cls.objects.create(insurance=insurance, amount=insurance.amount, start_at=datetime.date.today(),
-                               end_at = datetime.date.today(), is_complete=True)
+            cls.objects.create(insurance=insurance, amount=insurance.amount, start_at=start_time,
+                               end_at = start_time, is_complete=True)
             return
 
         if insurance.insurance_type == insurance.THIRD_PARTY:
@@ -49,7 +52,7 @@ class Installment(models.Model):
             prepayment = insurance.amount
 
         instance = cls.objects.create(insurance=insurance, amount=prepayment,
-                                      start_at=datetime.date.today(), end_at=datetime.date.today(),
+                                      start_at=start_time, end_at=start_time,
                                       pay_at=datetime.date.today(), is_complete=True)
         Balance.objects.create(user=insurance.insured.owner, amount=prepayment,
                                balance_type=Balance.DEPOSIT)
@@ -96,6 +99,9 @@ class Balance(models.Model):
     amount = models.PositiveBigIntegerField(verbose_name=_('amount'), null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('created at'))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('updated at'))
+
+    def __str__(self):
+        return f'{self.user} {self.get_balance_type_display()} {self.amount}'
 
     class Meta:
         verbose_name = _('Balance')

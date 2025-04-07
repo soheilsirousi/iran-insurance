@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'insurance.apps.InsuranceConfig',
     'transaction.apps.TransactionConfig',
+    'log.apps.LogConfig',
     'django_jalali',
     'django.contrib.humanize',
     'django_celery_beat',
@@ -133,7 +134,7 @@ LOGIN_REDIRECT_URL = '/user/profile/'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
 
@@ -164,11 +165,4 @@ SMS_BROKER = {
         'password': SMS_PASSWORD,
         'number': SMS_NUMBER,
     }
-}
-
-CELERY_BEAT_SCHEDULE = {
-    'remind_installments': {
-        'task': 'user.tasks.remind_installments',
-        'schedule': crontab(hour=0, minute=0),
-    },
 }

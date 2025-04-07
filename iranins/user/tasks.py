@@ -19,7 +19,7 @@ def remind_installments():
     installments = Installment.objects.filter(is_complete=False, start_at__lte=datetime.date.today() + datetime.timedelta(days=7))
     for installment in installments:
         last_remind = installment.last_reminder_sent
-        if last_remind and (last_remind - datetime.date.today()).days >= 7:
+        if (last_remind and (last_remind - datetime.date.today()).days >= 7) or last_remind is None:
             installment.last_reminder_sent = datetime.date.today()
             date = jdatetime.date.fromgregorian(date=installment.start_at).strftime("%Y/%m/%d")
             message = 'با سلام آقا/خانم {}\n سررسید قسط بیمه {} {} {} مورخ:\n {} \n مبلغ: {:,} تومان \n شماره کارت: {}\n بنام سید اسماعیل حجله\n با تشکر بیمه ایران'.format(

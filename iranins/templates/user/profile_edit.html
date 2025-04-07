@@ -1,5 +1,6 @@
 {% extends "user/profile_base.html" %}
 {% load static %}
+{% load humanize %}
 
 {% block content %}
 
@@ -43,6 +44,9 @@
 
             <label for="mobile">شماره همراه</label>
             <input type="text" id="mobile" name="mobile" value="{{ user.phone }}" readonly>
+
+            <label for="balance">موجودی حساب</label>
+            <input type="text" id="balance" name="balance" value="{{ user.get_balance|intcomma }} تومان" readonly>
 
             {% if request.user.role == 2 %}
                 <label for="role">نقش کاربری</label>

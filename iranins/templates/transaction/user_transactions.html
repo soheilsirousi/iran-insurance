@@ -5,8 +5,8 @@
 {% block content %}
     <div class="user-management-container">
         <h2>تراکنش های {{ user.get_full_name }}</h2>
-        {% if installments %}
 
+        {% if installments %}
             <table class="user-table">
                 <thead>
                 <tr>
@@ -18,7 +18,6 @@
                     <th>تاریخ</th>
                 </tr>
                 </thead>
-
                 <tbody>
                 {% for installment in installments %}
                     <tr>
@@ -30,11 +29,31 @@
                         <td>{{ installment.pay_at|jformat:"%Y/%m/%d" }}</td>
                     </tr>
                 {% endfor %}
-                {% else %}
-                <h4 style="text-align: center">داده‌ای موجود نیست</h4>
                 </tbody>
             </table>
+        {% else %}
+            <h4 style="text-align: center">داده‌ای موجود نیست</h4>
         {% endif %}
+
+        <div class="pagination-section" style="margin-top: 20px;">
+            <div class="pagination">
+                {% if installments.has_previous %}
+                    <a href="?page={{ installments.previous_page_number }}">
+                        <button class="prev-btn">قبلی</button>
+                    </a>
+                {% endif %}
+
+                {% if installments.paginator.num_pages > 1 %}
+                    <span>صفحه {{ installments.number }} از {{ installments.paginator.num_pages }}</span>
+                {% endif %}
+
+                {% if installments.has_next %}
+                    <a href="?page={{ installments.next_page_number }}">
+                        <button class="next-btn">بعدی</button>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
 
     </div>
 

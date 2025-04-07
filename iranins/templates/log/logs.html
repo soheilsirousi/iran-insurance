@@ -1,0 +1,57 @@
+{% extends 'user/profile_base.html' %}
+{% load jformat %}
+
+{% block content %}
+    <div class="user-management-container">
+        <h2>لاگ های سیستم</h2>
+
+        {% if logs %}
+            <table class="user-table">
+                <thead>
+                <tr>
+                    <th>از کاربر</th>
+                    <th>روی کاربر</th>
+                    <th>عملیات</th>
+                    <th>تاریخ</th>
+                    <th>توضیجات</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for log in logs %}
+                    <tr>
+                        <td>{{ log.from_user.get_full_name }}</td>
+                        <td>{{ log.to_user.get_full_name }}</td>
+                        <td>{{ log.get_operation_display }}</td>
+                        <td>{{ log.created_time|jformat:"%Y/%m/%d %H:%M:%S" }}</td>
+                        <td>{{ log.description }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <h4 style="text-align: center">داده‌ای موجود نیست</h4>
+        {% endif %}
+
+        <div class="pagination-section" style="margin-top: 20px;">
+            <div class="pagination">
+                {% if logs.has_previous %}
+                    <a href="?page={{ logs.previous_page_number }}">
+                        <button class="prev-btn">قبلی</button>
+                    </a>
+                {% endif %}
+
+                {% if logs.paginator.num_pages > 1 %}
+                    <span>صفحه {{ logs.number }} از {{ logs.paginator.num_pages }}</span>
+                {% endif %}
+
+                {% if logs.has_next %}
+                    <a href="?page={{ logs.next_page_number }}">
+                        <button class="next-btn">بعدی</button>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}
