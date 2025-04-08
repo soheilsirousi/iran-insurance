@@ -35,10 +35,8 @@ class UserLogin(View):
             return HttpResponse("Invalid phone pattern.")
 
         code = generate_otp(phone)
-        print(phone)
         message = f'بیمه ایران - کد ورود {code}'
         send_sms.delay(phone, message)
-        print(code)
         return render(request, 'user/otp.html', context={'phone': phone})
 
 

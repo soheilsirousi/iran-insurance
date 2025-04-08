@@ -8,9 +8,10 @@ celery_app = Celery("iranins")
 celery_app.config_from_object("django.conf:settings", namespace="CELERY")
 celery_app.autodiscover_tasks()
 
-CELERY_BEAT_SCHEDULE = {
+
+celery_app.conf.beat_schedule = {
     'remind_installments': {
         'task': 'user.tasks.remind_installments',
-        'schedule': crontab(hour=23, minute=55),
+        'schedule': crontab(hour=10, minute=37),
     },
 }
