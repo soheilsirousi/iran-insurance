@@ -4,7 +4,7 @@ import datetime
 from melipayamak import Api
 import jdatetime
 from iranins.local_settings import CARD_NUMBER
-from transaction.models import Installment
+from transaction.models import Installment, Transaction, Balance
 from user.models import CustomUser
 
 
@@ -19,14 +19,20 @@ def send_sms(phone, message):
 def remind_installments():
     installments = Installment.objects.filter(is_complete=False, start_at__lte=datetime.date.today() + datetime.timedelta(days=7))
     for installment in installments:
+        user = installment.insurance.insured.owner
         last_remind = installment.last_reminder_sent
+        if user.get_balance() >= installment.amount:
+            installment.is_complete = True
+            installment.save()
+            Balance.objects.create(user=user, amount=installment.amount, balance_type=Balance.WITHDRAW)
+            continue
         if datetime.date.today() > installment.end_at:
             date = jdatetime.date.fromgregorian(date=installment.end_at).strftime("%Y/%m/%d")
             message = 'قسط بیمه {} {} {} مشتری {} از موعد پرداخت ({}) گذشته و پرداخت نشده است.\n مبلغ پرداخت: {} تومان'.format(
                 installment.insurance.get_insurance_type_display(),
                 installment.insurance.insured.category,
                 installment.insurance.insured,
-                installment.insurance.insured.owner.get_full_name(),
+                user.get_full_name(),
                 date,
                 installment.amount
             )
@@ -38,7 +44,7 @@ def remind_installments():
                 installment.last_reminder_sent = datetime.date.today()
                 date = jdatetime.date.fromgregorian(date=installment.start_at).strftime("%Y/%m/%d")
                 message = 'با سلام آقا/خانم {}\n سررسید قسط بیمه {} {} {} مورخ:\n {} \n مبلغ: {:,} تومان \n شماره کارت: {}\n بنام سید اسماعیل حجله\n با تشکر بیمه ایران'.format(
-                    installment.insurance.insured.owner.get_full_name(), installment.insurance.get_insurance_type_display(),
+                    user.get_full_name(), installment.insurance.get_insurance_type_display(),
                     installment.insurance.insured.category, installment.insurance.insured, date,
                     installment.amount, CARD_NUMBER)
-                send_sms.delay(installment.insurance.insured.owner.phone, message)
+                send_sms.delay(user.phone, message)
