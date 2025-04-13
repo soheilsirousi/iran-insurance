@@ -12,6 +12,6 @@ celery_app.autodiscover_tasks()
 celery_app.conf.beat_schedule = {
     'remind_installments': {
         'task': 'user.tasks.remind_installments',
-        'schedule': crontab(hour=10, minute=37),
+        'schedule': crontab(hour=1, minute=30),
     },
 }

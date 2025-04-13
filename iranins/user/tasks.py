@@ -3,7 +3,6 @@ from django.conf import settings
 import datetime
 from melipayamak import Api
 import jdatetime
-from iranins.local_settings import CARD_NUMBER
 from transaction.models import Installment, Transaction, Balance
 from user.models import CustomUser
 
@@ -46,5 +45,5 @@ def remind_installments():
                 message = 'با سلام آقا/خانم {}\n سررسید قسط بیمه {} {} {} مورخ:\n {} \n مبلغ: {:,} تومان \n شماره کارت: {}\n بنام سید اسماعیل حجله\n با تشکر بیمه ایران'.format(
                     user.get_full_name(), installment.insurance.get_insurance_type_display(),
                     installment.insurance.insured.category, installment.insurance.insured, date,
-                    installment.amount, CARD_NUMBER)
+                    installment.amount, '6104337878433281')
                 send_sms.delay(user.phone, message)
