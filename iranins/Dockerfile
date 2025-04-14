@@ -9,4 +9,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["gunicorn", "iranins.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["python3", "manage.py", "collectstatic", "&&", "python3", "manage.py", "migrate"]
+CMD ["gunicorn", "iranins.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "120"]
