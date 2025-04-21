@@ -6,6 +6,7 @@ from django.db.models import Q, Sum
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from insurance.models import Insurance
+from transaction.utils.round import round_to_nearest
 
 
 class Installment(models.Model):
@@ -36,7 +37,7 @@ class Installment(models.Model):
         start_time = Insurance.convert_date(start_at)
         if payment == 'full':
             cls.objects.create(insurance=insurance, amount=insurance.amount, start_at=start_time,
-                               end_at = start_time, is_complete=True)
+                               end_at = start_time, is_complete=True, pay_at=datetime.date.today())
             return
 
         if insurance.insurance_type == insurance.THIRD_PARTY:
@@ -51,6 +52,10 @@ class Installment(models.Model):
         else:
             prepayment = insurance.amount
 
+        remain = insurance.amount - prepayment
+        installment_amount, remaining = round_to_nearest(remain // installment_count)
+        prepayment = prepayment + (remaining * installment_count)
+
         instance = cls.objects.create(insurance=insurance, amount=prepayment,
                                       start_at=start_time, end_at=start_time,
                                       pay_at=datetime.date.today(), is_complete=True)
@@ -60,9 +65,9 @@ class Installment(models.Model):
                                balance_type=Balance.WITHDRAW)
         Transaction.objects.create(installment=instance, amount=prepayment, is_paid=True)
         prev = instance
-        remain = insurance.amount - prepayment
+
         for i in range(installment_count):
-            prev = cls.objects.create(insurance=insurance, amount=remain // installment_count,
+            prev = cls.objects.create(insurance=insurance, amount=installment_amount,
                                       start_at=prev.start_at + datetime.timedelta(days=30),
                                       end_at=prev.start_at + datetime.timedelta(days=60))
 

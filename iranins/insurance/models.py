@@ -112,6 +112,16 @@ class Insurance(models.Model):
     def get_installments(self):
         return self.installments.all().order_by('start_at')
 
+    def get_paid_installments(self, start_date, end_date):
+        if start_date and end_date:
+            return self.installments.filter(is_complete=True, start_at__gte=start_date, end_at__lte=end_date)
+        return self.installments.filter(is_complete=True)
+
+    def get_unpaid_installments(self, start_date, end_date):
+        if start_date and end_date:
+            return self.installments.filter(is_complete=False, start_at__gte=start_date, end_at__lte=end_date)
+        return self.installments.filter(is_complete=False)
+
 class Attribute(models.Model):
     name = models.CharField(max_length=100, verbose_name=_('name'))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('created at'))

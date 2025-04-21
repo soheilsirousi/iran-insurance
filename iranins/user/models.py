@@ -137,5 +137,3 @@ class CustomUser(AbstractUser):
     def get_year_later(cls):
         today = cls.get_today()
         return datetime.date(year=today.year+1, month=today.month, day=today.day)
-
-
