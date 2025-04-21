@@ -11,7 +11,7 @@ class CustomUserAdmin(UserAdmin):
 
     model = CustomUser
 
-    list_display = ('username', 'phone', 'is_active',
+    list_display = ('username', 'phone', 'is_active', 'on_block_list',
                     'is_staff', 'is_superuser', 'last_login',)
     list_filter = ('is_active', 'is_staff', 'is_superuser')
     fieldsets = (

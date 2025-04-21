@@ -2,23 +2,17 @@
 {% load static %}
 
 {% block content %}
-<div class="profile-edit-container">
-    <h2>افزودن کاربر جدید</h2>
-    <div class="profile-edit-wrapper">
-        <div class="profile-image-section">
-            <div class="profile-image-upload">
-                <img src="{% static "default.jpg" %}" alt="تصویر پروفایل" class="current-profile-image">
-                <input type="file" id="profile-image-upload" name="profile_image" accept="image/*">
-            </div>
-        </div>
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
+    <div class="profile-edit-container">
+        <h2>افزودن کاربر جدید</h2>
+        <div class="profile-edit-wrapper">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
 
-            <label for="mobile">شماره همراه</label>
-            <input type="text" id="mobile" name="mobile" required>
+                <label for="mobile">شماره همراه</label>
+                <input type="text" id="mobile" name="mobile" required>
 
-            <label for="role">نقش کاربری</label>
-            <select id="role" name="role" class="form-control" style="
+                <label for="role">نقش کاربری</label>
+                <select id="role" name="role" class="form-control" style="
                 font-family: 'Vazir', sans-serif;
                 font-size: 16px;
                 width: 107%;
@@ -34,22 +28,50 @@
                 background-position: right 10px center;
                 background-size: 12px;
                 cursor: pointer;">
-                <option value="owner">مدیر</option>
-                <option value="support">پشتیبان</option>
-                <option value="customer" selected>مشتری</option>
-            </select>
+                    <option value="owner">مدیر</option>
+                    <option value="support">پشتیبان</option>
+                    <option value="customer" selected>مشتری</option>
+                </select>
 
-            <label for="national_id">کد ملی</label>
-            <input type="text" id="national_id" name="national_id" required>
+                <label for="national_id">کد ملی</label>
+                <input type="text" id="national_id" name="national_id" required>
 
-            <label for="first_name">نام</label>
-            <input type="text" id="first_name" name="first_name" required>
+                <label for="first_name">نام</label>
+                <input type="text" id="first_name" name="first_name" required>
 
-            <label for="last_name">نام خانوادگی</label>
-            <input type="text" id="last_name" name="last_name" required>
+                <label for="last_name">نام خانوادگی</label>
+                <input type="text" id="last_name" name="last_name" required>
 
-            <button type="submit" style="width: 107%">ایجاد کاربر</button>
-        </form>
+                <div class="form-checkbox-row">
+                    <input type="checkbox" id="is_block" name="is_block">
+                    <label for="is_block">غیرفعال کردن پیامک</label>
+                </div>
+
+                <button type="submit" style="width: 107%">ایجاد کاربر</button>
+            </form>
+        </div>
     </div>
-</div>
+
+    <style>
+        .form-checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        .form-checkbox-row input[type="checkbox"] {
+            width: auto;
+            height: 16px;
+            cursor: pointer;
+            margin-top: 13px;
+        }
+
+        .form-checkbox-row label {
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+    </style>
 {% endblock %}

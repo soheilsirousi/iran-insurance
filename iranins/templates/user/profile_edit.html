@@ -5,55 +5,47 @@
 {% block content %}
 
     {% if messages %}
-{% for message in messages %}
-    <div class="error-container">
-    <div class="error-alert">
-        <button class="error-close">&times;</button>
-        <div class="error-content">
-            <div class="error-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
+        {% for message in messages %}
+            <div class="error-container">
+                <div class="error-alert">
+                    <button class="error-close">&times;</button>
+                    <div class="error-content">
+                        <div class="error-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                        <div class="error-message">
+                            {{ message }}
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="error-message">
-                {{ message }}
-            </div>
-        </div>
-    </div>
-</div>
-{% endfor %}
+        {% endfor %}
     {% endif %}
 
-<div class="profile-edit-container">
-    <h2>ویرایش پروفایل</h2>
-    <div class="profile-edit-wrapper">
-        <div class="profile-image-section">
-            <div class="profile-image-upload">
-                {% if user.image %}
-                    <img src="{{ user.image.url }}" alt="تصویر پروفایل" class="current-profile-image">
+    <div class="profile-edit-container">
+        <h2>ویرایش پروفایل</h2>
+        <div class="profile-edit-wrapper">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <label for="mobile">شماره همراه</label>
+                <input type="text" id="mobile" name="mobile" value="{{ user.phone }}" readonly>
+
+                <label for="balance">موجودی حساب</label>
+                <input type="text" id="balance" name="balance" value="{{ user.get_balance|intcomma }} تومان" readonly>
+
+                {% if request.user.role == 2 %}
+                    <label for="role">نقش کاربری</label>
+                    <input type="text" id="role" name="role" value="{{ user.get_role_display }}" readonly>
                 {% else %}
-                    <img src="{% static "default.jpg" %}" alt="تصویر پروفایل" class="current-profile-image">
-                {% endif %}
-                <input type="file" id="profile-image-upload" name="profile_image" accept="image/*">
-            </div>
-        </div>
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-
-            <label for="mobile">شماره همراه</label>
-            <input type="text" id="mobile" name="mobile" value="{{ user.phone }}" readonly>
-
-            <label for="balance">موجودی حساب</label>
-            <input type="text" id="balance" name="balance" value="{{ user.get_balance|intcomma }} تومان" readonly>
-
-            {% if request.user.role == 2 %}
-                <label for="role">نقش کاربری</label>
-                <input type="text" id="role" name="role" value="{{ user.get_role_display }}" readonly>
-            {% else %}
-                <label for="role">نقش کاربری</label>
-                <select id="role" name="role" class="form-control" style="
+                    <label for="role">نقش کاربری</label>
+                    <select id="role" name="role" class="form-control" style="
                     font-family: 'Vazir', sans-serif;
                     font-size: 16px;
                     width: 107%;
@@ -69,33 +61,60 @@
                     background-position: right 10px center;
                     background-size: 12px;
                     cursor: pointer;">
-                    {% if user.role == 1 %}
-                        <option value="owner" selected>مدیر</option>
-                        <option value="support">پشتیبان</option>
-                        <option value="customer">مشتری</option>
-                    {% elif user.role == 2 %}
-                        <option value="support" selected>پشتیبان</option>
-                        <option value="owner">مدیر</option>
-                        <option value="customer">مشتری</option>
-                    {% else %}
-                        <option value="customer" selected>مشتری</option>
-                        <option value="owner">مدیر</option>
-                        <option value="support">پشتیبان</option>
-                    {% endif %}
-                </select>
-            {% endif %}
+                        {% if user.role == 1 %}
+                            <option value="owner" selected>مدیر</option>
+                            <option value="support">پشتیبان</option>
+                            <option value="customer">مشتری</option>
+                        {% elif user.role == 2 %}
+                            <option value="support" selected>پشتیبان</option>
+                            <option value="owner">مدیر</option>
+                            <option value="customer">مشتری</option>
+                        {% else %}
+                            <option value="customer" selected>مشتری</option>
+                            <option value="owner">مدیر</option>
+                            <option value="support">پشتیبان</option>
+                        {% endif %}
+                    </select>
+                {% endif %}
 
-            <label for="national_id">کد ملی</label>
-            <input type="text" id="national_id" name="national_id" value="{{ user.national_id }}">
+                <label for="national_id">کد ملی</label>
+                <input type="text" id="national_id" name="national_id" value="{{ user.national_id }}">
 
-            <label for="first_name">نام</label>
-            <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}">
+                <label for="first_name">نام</label>
+                <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}">
 
-            <label for="last_name">نام خانوادگی</label>
-            <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}">
+                <label for="last_name">نام خانوادگی</label>
+                <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}">
 
-            <button type="submit" style="width: 107%">بروزرسانی پروفایل</button>
-        </form>
+                <div class="form-checkbox-row">
+                    <input type="checkbox" id="is_block" name="is_block" {% if user.on_block_list %}checked{% endif %}>
+                    <label for="is_block">غیرفعال کردن پیامک</label>
+                </div>
+
+                <button type="submit" style="width: 107%">بروزرسانی پروفایل</button>
+            </form>
+        </div>
     </div>
-</div>
+    <style>
+        .form-checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        .form-checkbox-row input[type="checkbox"] {
+            width: auto;
+            height: 16px;
+            cursor: pointer;
+            margin-top: 13px;
+        }
+
+        .form-checkbox-row label {
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+    </style>
 {% endblock %}

@@ -19,6 +19,8 @@ def remind_installments():
     installments = Installment.objects.filter(is_complete=False, start_at__lte=datetime.date.today() + datetime.timedelta(days=7))
     for installment in installments:
         user = installment.insurance.insured.owner
+        if user.on_block_list:
+            continue
         last_remind = installment.last_reminder_sent
         if user.get_balance() >= installment.amount:
             installment.is_complete = True

@@ -90,7 +90,7 @@ class ProfileEdit(LoginRequiredMixin, View):
         return render(request, 'user/profile_edit.html')
 
     def post(self, request, *args, **kwargs):
-        CustomUser.edit_user(request.user, request.POST, request.FILES)
+        CustomUser.edit_user(request.user, request.POST)
         Log.create_log(request.user, request.user, Log.EDIT, request.user)
         return redirect('profile-edit')
 
@@ -121,7 +121,7 @@ class ProfileCreateUser(LoginRequiredMixin, View):
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
-        user = CustomUser.create_user(request.POST, request.FILES)
+        user = CustomUser.create_user(request.POST)
         Log.create_log(request.user, user, Log.CREATE, user)
         return redirect('profile-users')
 
@@ -143,7 +143,7 @@ class ProfileUserRetreive(LoginRequiredMixin, View):
             messages.error(request, 'پشتیبان نمیتواند کاربر مدیر یا پشتیبان را ویرایش کند.')
             return redirect('profile-users')
 
-        CustomUser.edit_user(user, request.POST, request.FILES)
+        CustomUser.edit_user(user, request.POST)
         Log.create_log(request.user, user, Log.EDIT, user)
         return redirect('profile-users')
 

@@ -27,6 +27,7 @@ class CustomUser(AbstractUser):
     phone = models.CharField(max_length=11, unique=True, verbose_name=_('phone'))
     national_id = models.CharField(max_length=10, unique=True, verbose_name=_('national id'), null=True, blank=True)
     role = models.PositiveSmallIntegerField(choices=choices, verbose_name=_('role'), default=CLIENT)
+    on_block_list = models.BooleanField(default=False, verbose_name=_('on block list'))
     image = models.ImageField(upload_to='user/', verbose_name=_('image'), null=True, blank=True)
 
     USERNAME_FIELD = 'phone'
@@ -69,13 +70,17 @@ class CustomUser(AbstractUser):
         return False, "رمز یکبار مصرف نادرست است."
 
     @classmethod
-    def create_user(cls, data, file):
+    def create_user(cls, data):
         phone = data.get("mobile")
         national_id = data.get("national_id")
         first_name = data.get("first_name")
         last_name = data.get("last_name")
         role = data.get("role")
-        profile_image = file.get('profile_image')
+        is_block = data.get("is_block")
+        block = False
+
+        if is_block == 'on':
+            block = True
 
         if role == 'owner':
             role = 1
@@ -85,14 +90,8 @@ class CustomUser(AbstractUser):
             role = 3
 
         password = cls.objects.make_random_password()
-        user = cls.objects.create_user(phone=phone, national_id=national_id,
+        user = cls.objects.create_user(phone=phone, national_id=national_id, on_block_list=block,
                                               first_name=first_name, last_name=last_name, role=role, password=password)
-
-        if profile_image:
-            file_name = f'user/{user.username}_{profile_image.name}'
-            path = default_storage.save(file_name, ContentFile(profile_image.read()))
-
-            user.image = path
 
         user.save()
 
@@ -100,12 +99,12 @@ class CustomUser(AbstractUser):
 
 
     @classmethod
-    def edit_user(cls, user, data, file):
+    def edit_user(cls, user, data):
         first_name = data.get('first_name')
         last_name = data.get('last_name')
         national_id = data.get('national_id')
         role = data.get('role')
-        profile_image = file.get('profile_image')
+        is_block = data.get('is_block')
 
         if first_name:
             user.first_name = first_name
@@ -123,11 +122,10 @@ class CustomUser(AbstractUser):
         elif role == 'customer':
             user.role = user.CLIENT
 
-        if profile_image:
-            file_name = f'user/{user.username}_{profile_image.name}'
-            path = default_storage.save(file_name, ContentFile(profile_image.read()))
-
-            user.image = path
+        if is_block == 'on':
+            user.on_block_list = True
+        else:
+            user.on_block_list = False
 
         user.save()
 
