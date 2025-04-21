@@ -2,8 +2,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
+import datetime
 from django.views import View
 
+from insurance.models import Insurance
 from log.models import Log
 from transaction.models import Installment, Balance
 from user.models import CustomUser
@@ -18,8 +20,9 @@ class ChargeBalance(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         phone = request.POST.get('phone')
         amount = request.POST.get('amount')
-        if phone is None or amount is None:
-            messages.error(request, "شماره همراه و مبلغ الزامی می باشد.")
+        date = Insurance.convert_date(request.POST.get('date'))
+        if phone is None or amount is None or date is None:
+            messages.error(request, "شماره همراه و مبلغ و تاریخ الزامی می باشد.")
             return redirect('charge-balance')
 
         user = CustomUser.objects.filter(phone=phone)
@@ -32,6 +35,8 @@ class ChargeBalance(LoginRequiredMixin, View):
             return redirect('charge-balance')
 
         instance = Balance.objects.create(user=user.first(), amount=int(amount))
+        instance.created_at = datetime.datetime(year=date.year, month=date.month, day=date.day)
+        instance.save()
         messages.success(request, "شارژ حساب با موفقیت انجام شد.")
 
         Log.create_log(request.user, instance.user, Log.CREATE, instance)

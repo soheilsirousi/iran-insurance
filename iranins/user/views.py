@@ -22,13 +22,13 @@ class UserLogin(View):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('profile-dashboard')
+            return redirect('unpaid-installments')
 
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('profile-dashboard')
+            return redirect('unpaid-installments')
 
         phone = request.POST.get("phone")
         if check_phone(phone) is None:
@@ -44,24 +44,24 @@ class VerifyOTP(View):
 
     def post(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('profile-dashboard')
+            return redirect('unpaid-installments')
 
         otp = request.POST.get("otp")
         phone = request.POST.get("phone")
 
         status, log = CustomUser.login_user(request, phone, otp)
         if status:
-            return redirect('profile-dashboard')
+            return redirect('unpaid-installments')
 
         messages.error(request, log)
         return redirect('user-login')
 
 
-class ProfileDashboard(LoginRequiredMixin, View):
-    template_name = 'user/profile.html'
+class UnpaidInstallments(LoginRequiredMixin, View):
+    template_name = 'user/unpaid_installments.html'
 
     def get(self, request, *args, **kwargs):
-        installments = Installment.get_today_paid_installments()
+        installments = Installment.unpaid_installments()
         total_amount = 0
         for installment in installments:
             total_amount += installment.amount
@@ -69,6 +69,15 @@ class ProfileDashboard(LoginRequiredMixin, View):
         count = installments.count()
         data = {'count': count, 'installments': installments, 'total_amount': f'{total_amount:,}'}
         return render(request, self.template_name, context=data)
+
+
+class ExpiredInsurances(LoginRequiredMixin, View):
+    template_name = 'user/expired_insurances.html'
+
+    def get(self, request, *args, **kwargs):
+        now = datetime.date.today()
+        insurances = Insurance.objects.filter(end_at__lte=now + datetime.timedelta(days=7))
+        return render(request, self.template_name, {'insurances': insurances})
 
 
 class ProfileEdit(LoginRequiredMixin, View):
@@ -122,7 +131,7 @@ class ProfileUserRetreive(LoginRequiredMixin, View):
 
     def get(self, request, pk, *args, **kwargs):
         user = CustomUser.objects.get(pk=pk)
-        if (request.user.role == 2 and user.role in [1, 2]) and (request.user != user):
+        if (request.user.role in [2, 3] and user.role in [1, 2]) and (request.user != user):
             messages.error(request, 'پشتیبان نمیتواند کاربر مدیر یا پشتیبان را ویرایش کند.')
             return redirect('profile-users')
 
@@ -130,7 +139,7 @@ class ProfileUserRetreive(LoginRequiredMixin, View):
 
     def post(self, request, pk, *args, **kwargs):
         user = CustomUser.objects.get(pk=pk)
-        if request.user.role == 2 and user.role in [1, 2] and (request.user != user):
+        if request.user.role in [2, 3] and user.role in [1, 2] and (request.user != user):
             messages.error(request, 'پشتیبان نمیتواند کاربر مدیر یا پشتیبان را ویرایش کند.')
             return redirect('profile-users')
 
@@ -143,7 +152,7 @@ class ProfileUserDelete(LoginRequiredMixin, View):
 
     def get(self, request, pk, *args, **kwargs):
         user = CustomUser.objects.get(pk=pk)
-        if request.user.role == 2 and user.role in [1, 2]:
+        if request.user.role in [2, 3] and user.role in [1, 2]:
             messages.error(request, 'پشتیبان نمیتواند کاربر مدیر یا پشتیبان را حذف کند.')
             return redirect('profile-users')
         elif request.user == user:
@@ -180,7 +189,7 @@ class UserInsureds(LoginRequiredMixin, View):
 class UserInsuredDelete(LoginRequiredMixin, View):
 
     def get(self, request, user_pk, insured_pk, *args, **kwargs):
-        if request.user.role == 2:
+        if request.user.role in [2, 3]:
             messages.error(request, 'پشتیبان نمیتواند دارایی را حذف کند.')
             return redirect('user-insureds', pk=user_pk)
 
@@ -280,7 +289,7 @@ class InsuredInsuranceAdd(LoginRequiredMixin, View):
 class InsuredInsuranceDelete(LoginRequiredMixin, View):
 
     def get(self, request, user_pk, insured_pk, insurance_pk, *args, **kwargs):
-        if request.user.role == 2:
+        if request.user.role in [2, 3]:
             messages.error(request, 'پشتیبان نمیتواند بیمه را حذف کند.')
             return redirect('insured-insurance', user_pk=user_pk, insured_pk=insured_pk)
 

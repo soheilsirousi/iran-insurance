@@ -1,0 +1,51 @@
+{% extends "user/profile_base.html" %}
+{% load humanize %}
+{% load jformat %}
+
+{% block content %}
+    <section id="dashboard">
+        <h2>اقساط عقب مانده</h2>
+        <div class="dashboard-stats">
+            <div class="stat-box">
+                <h3>جمع اقساط</h3>
+                <p id="today-income">{{ total_amount }} تومان</p>
+            </div>
+            <div class="stat-box">
+                <h3>تعداد اقساط</h3>
+                <p id="transaction-count">{{ count }}</p>
+            </div>
+        </div>
+        <h3 style="margin-top: 50px">لیست اقساط</h3>
+        {% if installments %}
+
+            <table>
+            <thead>
+            <tr>
+                <th>نام و نام خانوادگی</th>
+                <th>دارایی</th>
+                <th>نوع بیمه</th>
+                <th>شماره بیمه نامه</th>
+                <th>تاریخ شروع</th>
+                <th>تاریخ پایان</th>
+                <th>مبلغ</th>
+            </tr>
+            </thead>
+            {% for installment in installments %}
+                <tbody id="installments-list">
+                <tr>
+                    <td>{{ installment.insurance.insured.owner.get_full_name }}</td>
+                    <td>{{ installment.insurance.insured.name }}</td>
+                    <td>{{ installment.insurance.get_insurance_type_display }}</td>
+                    <td>{{ installment.insurance.insurance_number }}</td>
+                    <td>{{ installment.start_at|jformat:"%Y/%m/%d" }}</td>
+                    <td>{{ installment.end_at|jformat:"%Y/%m/%d" }}</td>
+                    <td>{{ installment.amount|intcomma }} تومان</td>
+                </tr>
+                </tbody>
+            {% endfor %}
+        {% else %}
+            <h4 style="text-align: center">داده‌ای موجود نیست</h4>
+        {% endif %}
+        </table>
+    </section>
+{% endblock %}

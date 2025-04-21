@@ -106,10 +106,17 @@
                     <a href="{% url 'insured-insurance-edit' user.id insured.id insurance.id %}">
                         <button class="btn-edit">ویرایش</button>
                     </a>
-                    <a href="{% url 'insured-insurance-delete' user.id insured.id insurance.id %}">
-                        <button class="btn-delete">حذف</button>
+                    <a>
+                        <button class="btn-delete"
+                                onclick="openConfirmModal('delete-form-{{ insurance.id }}')">
+                            حذف
+                        </button>
                     </a>
                 </div>
+                <form id="delete-form-{{ insurance.id }}" method="get"
+                      action="{% url 'insured-insurance-delete' user.id insured.id insurance.id %}">
+                    {% csrf_token %}
+                </form>
 
                 <div class="installments-panel" id="installments-{{ insurance.id }}">
                     <div class="installments-title">
@@ -122,16 +129,17 @@
 
                             <div class="installment-item paid">
                                 {% if forloop.counter == 1 %}
-                                <div class="installment-number">پیش پرداخت</div>
-                                    {% else %}
-                                <div class="installment-number">قسط {{ forloop.counter|add:"-1" }}</div>
-                            {% endif %}
+                                    <div class="installment-number">پیش پرداخت</div>
+                                {% else %}
+                                    <div class="installment-number">قسط {{ forloop.counter|add:"-1" }}</div>
+                                {% endif %}
                                 <div class="installment-amount">{{ installment.amount|intcomma }} تومان</div>
                                 <div class="installment-date">{{ installment.start_at|jformat:"%Y/%m/%d" }}</div>
                                 {% if installment.is_complete %}
                                     <div class="installment-badge small">پرداخت شده</div>
                                 {% else %}
-                                    <a href="{% url 'installment-pay' user.id insured.id insurance.id installment.id %}" class="link-pay-installment">پرداخت</a>
+                                    <a href="{% url 'installment-pay' user.id insured.id insurance.id installment.id %}"
+                                       class="link-pay-installment">پرداخت</a>
                                     <div class="installment-badge small unpaid">در انتظار پرداخت</div>
                                 {% endif %}
                             </div>
@@ -142,6 +150,15 @@
                 </div>
             {% endfor %}
     </div>
+    </div>
+    <div id="confirm-modal-wrapper" class="confirm-modal-wrapper">
+        <div class="confirm-modal-content">
+            <p>آیا از حذف این مورد مطمئن هستید؟</p>
+            <div class="confirm-modal-buttons">
+                <button class="confirm-modal-confirm-btn" onclick="confirmModalSubmit()">بله، حذف کن</button>
+                <button class="confirm-modal-cancel-btn" onclick="closeConfirmModal()">انصراف</button>
+            </div>
+        </div>
     </div>
 
     <!-- مودال افزودن بیمه جدید -->
@@ -247,5 +264,38 @@
     </div>
 
     <script src="{% static 'insurances/js/scripts.js' %}"></script>
+    <script>
+
+        let currentDeleteFormId = null;
+
+        function openConfirmModal(formId) {
+            currentDeleteFormId = formId;
+            const modal = document.getElementById('confirm-modal-wrapper');
+            if (modal) {
+                modal.style.display = 'flex';
+            } else {
+                console.error("مدال یافت نشد!");
+            }
+        }
+
+        function closeConfirmModal() {
+            currentDeleteFormId = null;
+            const modal = document.getElementById('confirm-modal-wrapper');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function confirmModalSubmit() {
+            if (currentDeleteFormId) {
+                const form = document.getElementById(currentDeleteFormId);
+                if (form) {
+                    form.submit();
+                } else {
+                    console.error("فرم یافت نشد!");
+                }
+            }
+        }
+    </script>
 
 {% endblock %}

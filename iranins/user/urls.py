@@ -24,7 +24,8 @@ urlpatterns = [
 
     path('profile/users/<int:user_pk>/insureds/<int:insured_pk>/insurances/<int:insurance_pk>/installment/<int:installment_pk>/pay/',InstallmentPay.as_view(), name='installment-pay'),
 
-    path('profile/', ProfileDashboard.as_view(), name='profile-dashboard'),
+    path('unpaid/', UnpaidInstallments.as_view(), name='unpaid-installments'),
+    path('expired/', ExpiredInsurances.as_view(), name='expired-insurances'),
 
     path('logout/', ProfileLogout.as_view(), name='profile-logout'),
     path('error/', ErrorPage.as_view(), name='error-page'),

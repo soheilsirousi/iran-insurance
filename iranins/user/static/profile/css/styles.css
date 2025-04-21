@@ -1033,3 +1033,60 @@ body {
 .insurance-card {
     position: relative;
 }
+
+.confirm-modal-wrapper {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  align-items: center;
+  direction: rtl;
+}
+
+.confirm-modal-content {
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 10px;
+  text-align: center;
+  min-width: 300px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.confirm-modal-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.confirm-modal-confirm-btn {
+  background-color: #e74c3c;
+  color: #fff;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.confirm-modal-confirm-btn:hover {
+  background-color: #c0392b;
+}
+
+.confirm-modal-cancel-btn {
+  background-color: #bdc3c7;
+  color: #2c3e50;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.confirm-modal-cancel-btn:hover {
+  background-color: #95a5a6;
+}
+

@@ -62,18 +62,30 @@
                             </div>
                         </div>
                         <div class="asset-actions">
-                            <a href="{% url 'insured-insurance' user.id insured.id %}"><button class="action-btn insurance-btn">بیمه‌ها</button></a>
-                            <a href="{% url 'user-insured-edit' user.id insured.id %}"><button class="action-btn edit-btn">ویرایش</button></a>
-                            <a href="{% url 'user-insured-delete' user.id insured.id %}">
-                                <button class="action-btn delete-btn">حذف</button>
+                            <a href="{% url 'insured-insurance' user.id insured.id %}">
+                                <button class="action-btn insurance-btn">بیمه‌ها</button>
+                            </a>
+                            <a href="{% url 'user-insured-edit' user.id insured.id %}">
+                                <button class="action-btn edit-btn">ویرایش</button>
+                            </a>
+                            <a>
+                                <button class="action-btn delete-btn"
+                                        onclick="openConfirmModal('delete-form-{{ insured.id }}')">
+                                    حذف
+                                </button>
                             </a>
                         </div>
                     </div>
+                    <form id="delete-form-{{ insured.id }}" method="get"
+                          action="{% url 'user-insured-delete' user.id insured.id %}">
+                        {% csrf_token %}
+                    </form>
                 {% endfor %}
             {% else %}
                 <h3>موردی یافت نشد.</h3>
             {% endif %}
         </div>
+
 
         <div class="pagination-section">
             <div class="pagination">
@@ -90,6 +102,15 @@
                         <button class="next-btn">بعدی</button>
                     </a>
                 {% endif %}
+            </div>
+        </div>
+    </div>
+    <div id="confirm-modal-wrapper" class="confirm-modal-wrapper">
+        <div class="confirm-modal-content">
+            <p>آیا از حذف این مورد مطمئن هستید؟</p>
+            <div class="confirm-modal-buttons">
+                <button class="confirm-modal-confirm-btn" onclick="confirmModalSubmit()">بله، حذف کن</button>
+                <button class="confirm-modal-cancel-btn" onclick="closeConfirmModal()">انصراف</button>
             </div>
         </div>
     </div>
@@ -179,5 +200,36 @@
     </div>
 
     <script src="{% static "profile/js/user_insureds.js" %}"></script>
+    <script>
+        let currentDeleteFormId = null;
 
+        function openConfirmModal(formId) {
+            currentDeleteFormId = formId;
+            const modal = document.getElementById('confirm-modal-wrapper');
+            if (modal) {
+                modal.style.display = 'flex';
+            } else {
+                console.error("مدال یافت نشد!");
+            }
+        }
+
+        function closeConfirmModal() {
+            currentDeleteFormId = null;
+            const modal = document.getElementById('confirm-modal-wrapper');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function confirmModalSubmit() {
+            if (currentDeleteFormId) {
+                const form = document.getElementById(currentDeleteFormId);
+                if (form) {
+                    form.submit();
+                } else {
+                    console.error("فرم یافت نشد!");
+                }
+            }
+        }
+    </script>
 {% endblock %}

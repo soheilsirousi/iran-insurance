@@ -25,9 +25,9 @@ class Installment(models.Model):
         return f'{self.insurance} {self.amount} {self.start_at} {self.end_at}'
 
     @classmethod
-    def get_today_paid_installments(cls):
+    def unpaid_installments(cls):
         now = datetime.date.today()
-        installments = cls.objects.filter(pay_at=now, is_complete=True)
+        installments = cls.objects.filter(start_at__lte=now + datetime.timedelta(days=7), is_complete=False)
 
         return installments
 

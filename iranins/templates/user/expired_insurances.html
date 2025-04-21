@@ -1,0 +1,104 @@
+{% extends 'user/profile_base.html' %}
+{% load static %}
+{% load jformat %}
+
+{% block content %}
+    <section id="dashboard">
+        <h2>بیمه های در حال انقضا</h2>
+        <h3 style="margin-top: 50px">لیست بیمه ها</h3>
+        {% if insurances %}
+
+            <table>
+            <thead>
+            <tr>
+                <th>نام و نام خانوادگی</th>
+                <th>شماره تماس</th>
+                <th>دارایی</th>
+                <th>نوع بیمه</th>
+                <th>شماره بیمه نامه</th>
+                <th>تاریخ شروع</th>
+                <th>تاریخ پایان</th>
+                <th>عملیات</th>
+            </tr>
+            </thead>
+            {% for insurance in insurances %}
+                <tbody id="installments-list">
+                <tr>
+                    <td>{{ insurance.insured.owner.get_full_name }}</td>
+                    <td>{{ insurance.insured.owner.phone }}</td>
+                    <td>{{ insurance.insured.name }}</td>
+                    <td>{{ insurance.get_insurance_type_display }}</td>
+                    <td>{{ insurance.insurance_number }}</td>
+                    <td>{{ insurance.start_at|jformat:"%Y/%m/%d" }}</td>
+                    <td>{{ insurance.end_at|jformat:"%Y/%m/%d" }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'insurance-reminder' insurance.id %}">
+                                <button class="insurance-btn">ارسال پیامک یادآوری</button>
+                            </a>
+                            <a>
+                                <button class="delete-btn" onclick="openConfirmModal('delete-form-{{ insurance.id }}')">
+                                    حذف
+                                </button>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                <form id="delete-form-{{ insurance.id }}" method="get"
+                      action="{% url 'insured-insurance-delete' insurance.insured.owner.id insurance.insured.id insurance.id %}">
+                    {% csrf_token %}
+                </form>
+                </tbody>
+            {% endfor %}
+        {% else %}
+            <h4 style="text-align: center">داده‌ای موجود نیست</h4>
+        {% endif %}
+        </table>
+        <div id="confirm-modal-wrapper" class="confirm-modal-wrapper">
+            <div class="confirm-modal-content">
+                <p>آیا از حذف این مورد مطمئن هستید؟</p>
+                <div class="confirm-modal-buttons">
+                    <button class="confirm-modal-confirm-btn" onclick="confirmModalSubmit()">بله، حذف کن</button>
+                    <button class="confirm-modal-cancel-btn" onclick="closeConfirmModal()">انصراف</button>
+                </div>
+            </div>
+        </div>
+    </section>
+<script>
+     let currentDeleteFormId = null;
+
+        function openConfirmModal(formId) {
+            currentDeleteFormId = formId;
+            const modal = document.getElementById('confirm-modal-wrapper');
+            if (modal) {
+                modal.style.display = 'flex';
+            } else {
+                console.error("مدال یافت نشد!");
+            }
+        }
+
+        function closeConfirmModal() {
+            currentDeleteFormId = null;
+            const modal = document.getElementById('confirm-modal-wrapper');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function confirmModalSubmit() {
+            if (currentDeleteFormId) {
+                const form = document.getElementById(currentDeleteFormId);
+                if (form) {
+                    form.submit();
+                } else {
+                    console.error("فرم یافت نشد!");
+                }
+            }
+        }
+</script>
+
+{% endblock %}
+
+
+
+

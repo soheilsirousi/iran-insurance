@@ -45,7 +45,7 @@ class Insurance(models.Model):
         (LIABILITY, 'مسئولیت'),
     )
 
-    insurance_number = models.PositiveBigIntegerField(verbose_name=_('insurance number'), null=True, blank=True)
+    insurance_number = models.CharField(max_length=50, verbose_name=_('insurance number'), null=True, blank=True)
     insurer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name=_('insurer'), related_name='insurances')
     insured = models.ForeignKey(Insured, on_delete=models.CASCADE, verbose_name=_('insured'), related_name='insurances')
     insurance_type = models.PositiveSmallIntegerField(choices=choices, verbose_name=_('insurance type'), default=THIRD_PARTY)
@@ -82,7 +82,7 @@ class Insurance(models.Model):
     @classmethod
     def open_insurance(cls, insurer, insured, data):
         type = data.get('insurance_type')
-        insurance_number = int(data.get('insurance_number'))
+        insurance_number = data.get('insurance_number')
         start_date = cls.convert_date(data.get('start_at'))
         end_date = cls.convert_date(data.get('end_at'))
         amount = int(data.get('amount'))
